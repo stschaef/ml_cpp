@@ -1,7 +1,16 @@
 #include <NeuralNetwork.h>
 
-// ___________FullyConnectedLayer Implementations___________
+// ___________Layer Implementations___________
+char Layer::get_layer_type()
+{
+    // Use this for storing weight information into files
+    // Encode each layer type with a char
+    if (dynamic_cast<FullyConnectedLayer*>(this)) return 'f';
+    if (dynamic_cast<ActivationFunctionLayer*>(this)) return 'a';
+    return 'x';
+}
 
+// ___________FullyConnectedLayer Implementations___________
 FullyConnectedLayer::FullyConnectedLayer(
     uint n_in,
     uint n_out,
@@ -10,7 +19,8 @@ FullyConnectedLayer::FullyConnectedLayer(
     : Layer(n_in, n_out),
       rng(mt19937_64(seed)),
       weights(vector<vector<scalar>>(n_inputs, vector<scalar>(n_outputs))),
-      learning_rate(learning_rate) 
+      biases(vector<scalar>(n_outputs)),
+      learning_rate(learning_rate)
 {     
     initialize_weights(); 
 }
@@ -37,19 +47,19 @@ void FullyConnectedLayer::initialize_weights()
 }
 
 vector<scalar> FullyConnectedLayer::forward(vector<scalar> input) 
-{
+{  
+    in = input;
     vector<scalar> output(n_outputs);
-    for (uint i = 0; i < n_outputs; i++) {
-        output[i] = biases[i];
-        for (uint j = 0; j < n_inputs; j++) {
-            output[i] += input[i] * weights[i][j];
+    for (uint j = 0; j < n_outputs; j++) {
+        output[j] = biases[j];
+        for (uint i = 0; i < n_inputs; i++) {
+            output[j] += input[i] * weights[i][j];
         }
     }
     return output;
 }
 
 vector<scalar> FullyConnectedLayer::backward(
-    vector<scalar> input,
     vector<scalar> output_error) 
 {
     /* How backpropagation works:
@@ -86,7 +96,7 @@ vector<scalar> FullyConnectedLayer::backward(
     for (uint i = 0; i < n_inputs; i++) {
         for (uint j = 0; j < n_outputs; j++) {
             input_error[i] += output_error[j] * weights[i][j];
-            weights[i][j] -= learning_rate * output_error[j] * input[i];
+            weights[i][j] -= learning_rate * output_error[j] * in[i];
         }
     }
 
@@ -99,16 +109,16 @@ vector<scalar> FullyConnectedLayer::backward(
 
 // ___________ActivationFunctionLayer Implementations___________
 ActivationFunctionLayer::ActivationFunctionLayer(
-    uint n_in,
-    uint n_out, 
+    uint n ,
     function<scalar(scalar)> activation,
     function<scalar(scalar)> activation_der) 
-    : Layer(n_in, n_out),
+    : Layer(n, n),
       activation(activation),
       activation_der(activation_der) {}
 
 vector<scalar> ActivationFunctionLayer::forward(vector<scalar> input) 
-{
+{   
+    in = input;
     vector<scalar> output(n_outputs, 0);
     for (uint i = 0; i < n_outputs; i++) {
         output[i] = activation(input[i]);
@@ -117,13 +127,13 @@ vector<scalar> ActivationFunctionLayer::forward(vector<scalar> input)
     return output;
 }
 
-vector<scalar> ActivationFunctionLayer::backward(vector<scalar> input,
+vector<scalar> ActivationFunctionLayer::backward(
     vector<scalar> output_error)
 {
     // Nothing to learn, so just return input error
     vector<scalar> input_error(n_outputs, 0);
     for (uint i = 0; i < n_inputs; i ++) {
-        input_error[i] = activation_der(input[i]) * output_error[i];
+        input_error[i] = activation_der(in[i]) * output_error[i];
     }
 
     return input_error;
@@ -133,42 +143,85 @@ vector<scalar> ActivationFunctionLayer::backward(vector<scalar> input,
 // ___________NeuralNetwork Implementations___________
 
 NeuralNetwork::NeuralNetwork(
-    uint input_size,
-    uint output_size, 
-    vector<uint> topology_in,
     scalar learning_rate,
-    function<scalar(scalar, vector<scalar>, vector<scalar>)> loss,
+    function<scalar(vector<scalar>, vector<scalar>)> loss,
     function<vector<scalar>(vector<scalar>, vector<scalar>)> loss_der) 
-    : input_size(input_size),
-      output_size(output_size),
-      topology(topology_in),
-      learning_rate(learning_rate),
+    : learning_rate(learning_rate),
       loss(loss),
-      loss_prime(loss_der) 
-{        
-    generate_seeds();
-    layers.push_back(new FullyConnectedLayer(
-        input_size,
-        topology[0],
-        learning_rate,
-        seeds[0]));
-    for (uint i = 1; i < topology.size() - 1; i++) {
-        layers.push_back(new FullyConnectedLayer(
-            topology[i - 1], 
-            topology[i],
-            learning_rate,
-            seeds[i]));
+      loss_der(loss_der) {}
+
+vector<scalar> NeuralNetwork::predict(vector<scalar> input) 
+{
+    vector<scalar> output = input;
+    for (size_t i = 0; i < layers.size(); i++) {
+        output = layers[i]->forward(output);
     }
-    layers.push_back(new FullyConnectedLayer(
-        topology[topology.size() - 1],
-        output_size,
-        learning_rate,
-        seeds[seeds.size() - 1]));
+    return output;
 }
 
-void NeuralNetwork::generate_seeds() {
-    seeds.resize(topology.size() + 2);
-    std::seed_seq ss{8, 6, 7, 5, 3, 0, 9}; // TODO: change this from hard-coded
-    ss.generate(seeds.begin(), seeds.end());
+vector<scalar> NeuralNetwork::train(
+    vector<vector<scalar>>& input_data,
+    vector<vector<scalar>>& actual,
+    uint num_epochs)
+{
+    vector<scalar> epoch_data;
+
+    for (uint i = 0; i < num_epochs; i++) {
+        scalar error = 0.0;
+        for (size_t j = 0; j < input_data.size(); j++) {
+            vector<scalar> output = predict(input_data[j]);
+            error += loss(actual[j], output);
+
+            vector<scalar> output_error = loss_der(actual[j], output);
+            for (int k = layers.size() - 1; k >= 0; k--) {
+                output_error = layers[k]->backward(output_error);
+            }
+
+        }
+        error = error / input_data.size();
+        cout << "Epoch " << i << "\tError: " << error << '\n';
+        epoch_data.push_back(error);
+    }
+    return epoch_data;
 }
 
+void NeuralNetwork::add(shared_ptr<Layer> l)
+{
+    layers.push_back(l);
+}
+
+void NeuralNetwork::save_weights(string out_filename)
+{
+    ofstream out;
+    out.open(out_filename);
+    if (out.is_open()) {
+        for (size_t i = 0; i < layers.size(); i++) {
+            char layer_type = layers[i]->get_layer_type();
+            switch(layer_type) {
+                case 'a':
+                    out << layer_type << '\n';
+                    break;
+                case 'f':
+                    vector<vector<scalar>> layer_weights = (dynamic_cast<FullyConnectedLayer*> (layers[i].get()))->get_weights();
+                    vector<scalar> layer_biases = (dynamic_cast<FullyConnectedLayer*> (layers[i].get()))->get_biases();
+
+                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+
+                    out << "weights\n";
+                    for (size_t j = 0; j < layer_weights.size(); j++) {
+                        for (size_t k = 0; k < layer_weights[0].size(); k++) {
+                            out << layer_weights[j][k] << " ";
+                        }
+                        out << '\n';
+                    }
+                     out << "biases\n";
+                    for (size_t j = 0; j < layer_biases.size(); j++) {
+                        out << layer_biases[j] << " ";
+                    }
+                    out << '\n';
+                    break;
+            }
+        }
+    }
+    out.close();
+}
