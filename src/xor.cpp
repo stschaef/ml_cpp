@@ -33,7 +33,7 @@ int main()
   Y.push_back(vector<scalar>({1}));
   Y.push_back(vector<scalar>({0}));
 
-  vector<scalar> epoch_data = n.train(X, Y, 1000);
+  vector<scalar> epoch_data = n.train(X, Y, 1000, 32);
 
   vector<vector<scalar>> output;
   for (size_t i = 0; i < X.size(); i++) {
@@ -44,16 +44,11 @@ int main()
   iota(epochs.begin(), epochs.end(), 1);
 
   plt::plot(epochs, epoch_data);
-  plt::xlabel("Epoch");
+  plt::xlabel("Number of Iterations");
   plt::ylabel("Mean Squared Error");
   plt::title("XOR training");
   plt::save("plots/x_or_training.pdf");
 
   n.save_weights("data/weights.txt");
-
-  // Py_Initialize();
-  // PyRun_SimpleString();
-  // Py_Finalize();
-
   return 0;
 }

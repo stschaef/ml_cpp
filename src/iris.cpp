@@ -1,0 +1,376 @@
+#include <iostream>
+#include <NeuralNetwork.h>
+#include <Python.h>
+#include "matplotlibcpp.h"
+
+using namespace std;
+namespace plt = matplotlibcpp;
+
+int main()
+{
+    vector<uint32_t> seeds(100);
+    std::seed_seq ss{8, 6, 7, 5, 3, 0, 9}; // TODO: change this from hard-coded?
+    ss.generate(seeds.begin(), seeds.end());
+
+    scalar lr = 0.1;
+
+    cout << "Hello world" << endl;
+    NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(4, 5, lr, seeds[0])));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(5, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(5, 3, lr, seeds[1])));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(3, hyp_tan, hyp_tan_der)));
+
+    // This is the absolute dumbest way to do this
+    // BUT
+    // with multiple cursors in vscode and this being 150 lines
+    // its faster than messing with fstreams
+    vector<vector<scalar>> X;
+    vector<vector<scalar>> Y;
+
+    X.push_back({5.1,3.5,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.9,3.0,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.7,3.2,1.3,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.6,3.1,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.6,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.4,3.9,1.7,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.6,3.4,1.4,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.4,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.4,2.9,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.9,3.1,1.5,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.4,3.7,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.8,3.4,1.6,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.8,3.0,1.4,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.3,3.0,1.1,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.8,4.0,1.2,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.7,4.4,1.5,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.4,3.9,1.3,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.5,1.4,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.7,3.8,1.7,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.8,1.5,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.4,3.4,1.7,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.7,1.5,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.6,3.6,1.0,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.3,1.7,0.5});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.8,3.4,1.9,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.0,1.6,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.4,1.6,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.2,3.5,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.2,3.4,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.7,3.2,1.6,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.8,3.1,1.6,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.4,3.4,1.5,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.2,4.1,1.5,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.5,4.2,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.9,3.1,1.5,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.2,1.2,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.5,3.5,1.3,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.9,3.1,1.5,0.1});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.4,3.0,1.3,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.4,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.5,1.3,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.5,2.3,1.3,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.4,3.2,1.3,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.5,1.6,0.6});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.8,1.9,0.4});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.8,3.0,1.4,0.3});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.1,3.8,1.6,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({4.6,3.2,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.3,3.7,1.5,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({5.0,3.3,1.4,0.2});
+    Y.push_back({1, 0, 0});
+    X.push_back({7.0,3.2,4.7,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.4,3.2,4.5,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.9,3.1,4.9,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.5,2.3,4.0,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.5,2.8,4.6,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.7,2.8,4.5,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.3,3.3,4.7,1.6});
+    Y.push_back({0, 1, 0});
+    X.push_back({4.9,2.4,3.3,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.6,2.9,4.6,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.2,2.7,3.9,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.0,2.0,3.5,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.9,3.0,4.2,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.0,2.2,4.0,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.1,2.9,4.7,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.6,2.9,3.6,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.7,3.1,4.4,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.6,3.0,4.5,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.8,2.7,4.1,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.2,2.2,4.5,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.6,2.5,3.9,1.1});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.9,3.2,4.8,1.8});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.1,2.8,4.0,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.3,2.5,4.9,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.1,2.8,4.7,1.2});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.4,2.9,4.3,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.6,3.0,4.4,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.8,2.8,4.8,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.7,3.0,5.0,1.7});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.0,2.9,4.5,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.7,2.6,3.5,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.5,2.4,3.8,1.1});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.5,2.4,3.7,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.8,2.7,3.9,1.2});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.0,2.7,5.1,1.6});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.4,3.0,4.5,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.0,3.4,4.5,1.6});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.7,3.1,4.7,1.5});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.3,2.3,4.4,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.6,3.0,4.1,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.5,2.5,4.0,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.5,2.6,4.4,1.2});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.1,3.0,4.6,1.4});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.8,2.6,4.0,1.2});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.0,2.3,3.3,1.0});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.6,2.7,4.2,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.7,3.0,4.2,1.2});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.7,2.9,4.2,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.2,2.9,4.3,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.1,2.5,3.0,1.1});
+    Y.push_back({0, 1, 0});
+    X.push_back({5.7,2.8,4.1,1.3});
+    Y.push_back({0, 1, 0});
+    X.push_back({6.3,3.3,6.0,2.5});
+    Y.push_back({0,0,1});
+    X.push_back({5.8,2.7,5.1,1.9});
+    Y.push_back({0,0,1});
+    X.push_back({7.1,3.0,5.9,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({6.3,2.9,5.6,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.5,3.0,5.8,2.2});
+    Y.push_back({0,0,1});
+    X.push_back({7.6,3.0,6.6,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({4.9,2.5,4.5,1.7});
+    Y.push_back({0,0,1});
+    X.push_back({7.3,2.9,6.3,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.7,2.5,5.8,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({7.2,3.6,6.1,2.5});
+    Y.push_back({0,0,1});
+    X.push_back({6.5,3.2,5.1,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({6.4,2.7,5.3,1.9});
+    Y.push_back({0,0,1});
+    X.push_back({6.8,3.0,5.5,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({5.7,2.5,5.0,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({5.8,2.8,5.1,2.4});
+    Y.push_back({0,0,1});
+    X.push_back({6.4,3.2,5.3,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({6.5,3.0,5.5,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({7.7,3.8,6.7,2.2});
+    Y.push_back({0,0,1});
+    X.push_back({7.7,2.6,6.9,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({6.0,2.2,5.0,1.5});
+    Y.push_back({0,0,1});
+    X.push_back({6.9,3.2,5.7,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({5.6,2.8,4.9,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({7.7,2.8,6.7,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({6.3,2.7,4.9,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.7,3.3,5.7,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({7.2,3.2,6.0,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.2,2.8,4.8,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.1,3.0,4.9,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.4,2.8,5.6,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({7.2,3.0,5.8,1.6});
+    Y.push_back({0,0,1});
+    X.push_back({7.4,2.8,6.1,1.9});
+    Y.push_back({0,0,1});
+    X.push_back({7.9,3.8,6.4,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({6.4,2.8,5.6,2.2});
+    Y.push_back({0,0,1});
+    X.push_back({6.3,2.8,5.1,1.5});
+    Y.push_back({0,0,1});
+    X.push_back({6.1,2.6,5.6,1.4});
+    Y.push_back({0,0,1});
+    X.push_back({7.7,3.0,6.1,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({6.3,3.4,5.6,2.4});
+    Y.push_back({0,0,1});
+    X.push_back({6.4,3.1,5.5,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.0,3.0,4.8,1.8});
+    Y.push_back({0,0,1});
+    X.push_back({6.9,3.1,5.4,2.1});
+    Y.push_back({0,0,1});
+    X.push_back({6.7,3.1,5.6,2.4});
+    Y.push_back({0,0,1});
+    X.push_back({6.9,3.1,5.1,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({5.8,2.7,5.1,1.9});
+    Y.push_back({0,0,1});
+    X.push_back({6.8,3.2,5.9,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({6.7,3.3,5.7,2.5});
+    Y.push_back({0,0,1});
+    X.push_back({6.7,3.0,5.2,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({6.3,2.5,5.0,1.9});
+    Y.push_back({0,0,1});
+    X.push_back({6.5,3.0,5.2,2.0});
+    Y.push_back({0,0,1});
+    X.push_back({6.2,3.4,5.4,2.3});
+    Y.push_back({0,0,1});
+    X.push_back({5.9,3.0,5.1,1.8});
+    Y.push_back({0,0,1});
+
+    vector<int> indices(X.size());
+    iota(indices.begin(), indices.end(), 0);
+    vector<int> train, test;
+    vector<vector<scalar>> X_train, X_test, Y_train, Y_test;
+
+    for (int i = 0; i < int(.8 * 150); i++) {
+        X_train.push_back(X[indices[i]]);
+        Y_train.push_back(Y[indices[i]]);
+    }
+    for (int i = int(.8 * 150); i < 150; i++) {
+        X_test.push_back(X[indices[i]]);
+        Y_test.push_back(Y[indices[i]]);
+    }
+
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 8);
+
+    vector<vector<scalar>> output;
+    for (size_t i = 0; i < X.size(); i++) {
+        output.push_back(n.predict(X[i]));
+    }
+    int num_right = 0;
+    for (size_t i = 0; i < X_test.size(); i++) {
+        vector<scalar> output = n.predict(X_test[i]);
+        scalar biggest = -200;
+        int biggest_index = -1;
+        for (size_t j = 0; j < output.size(); j++) {
+            if (output[j] > biggest) biggest_index = j;
+        }
+        if (Y_test[i][biggest_index] == 1) num_right++;
+    }
+
+    cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
+
+    vector<int> epochs(1000);
+    iota(epochs.begin(), epochs.end(), 1);
+
+    plt::plot(epochs, epoch_data);
+    plt::xlabel("Number of Iterations");
+    plt::ylabel("Mean Squared Error");
+    plt::title("Iris training");
+    plt::save("plots/iris_training.pdf");
+
+    n.save_weights("data/iris_weights.txt");
+    return 0;
+}

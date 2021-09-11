@@ -9,6 +9,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 typedef float scalar;
 using namespace std;
@@ -113,7 +114,8 @@ public:
 
     vector<scalar> train(vector<vector<scalar>>& input_data,
                vector<vector<scalar>>& actual,
-               uint num_epochs);
+               uint num_epochs,
+               uint batch_size);
     void add(shared_ptr<Layer> l);
 
     void save_weights(string out_filename);

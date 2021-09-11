@@ -15,6 +15,12 @@ TEST=$(wildcard $(TEST_DIR)/*.cpp)
 xor: $(SRC_DIR)/xor.cpp 
 	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/xor.cpp -o $(BIN_DIR)/xor.o $(PYTHONLINKS)
 
+iris: $(SRC_DIR)/iris.cpp 
+	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/iris.cpp -o $(BIN_DIR)/iris.o $(PYTHONLINKS)
+
+mnistnocnn: $(SRC_DIR)/mnist.cpp 
+	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS)
+
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o
 

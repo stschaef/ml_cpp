@@ -162,23 +162,49 @@ vector<scalar> NeuralNetwork::predict(vector<scalar> input)
 vector<scalar> NeuralNetwork::train(
     vector<vector<scalar>>& input_data,
     vector<vector<scalar>>& actual,
-    uint num_epochs)
+    uint num_epochs,
+    uint batch_size)
 {
     vector<scalar> epoch_data;
+    size_t num_samples = input_data.size();
+
+    vector<int> indices(num_samples);
+    iota(indices.begin(), indices.end(), 0);
 
     for (uint i = 0; i < num_epochs; i++) {
+        random_shuffle(indices.begin(), indices.end());
         scalar error = 0.0;
-        for (size_t j = 0; j < input_data.size(); j++) {
-            vector<scalar> output = predict(input_data[j]);
-            error += loss(actual[j], output);
 
-            vector<scalar> output_error = loss_der(actual[j], output);
-            for (int k = layers.size() - 1; k >= 0; k--) {
-                output_error = layers[k]->backward(output_error);
+        uint j = 0;
+        uint k = 0;
+
+        while (j < num_samples) {
+            vector<int> mini_batch;
+            while (k < batch_size) {
+                j++;
+                k++;
+                mini_batch.push_back(j % num_samples);
             }
+            k = 0;
 
+            vector<scalar> batch_grad(input_data[0].size());
+        
+            // average the gradient over batch
+            for (auto idx : mini_batch) {
+                vector<scalar> output = predict(input_data[idx]);
+                vector<scalar> output_error = loss_der(actual[idx], output);
+                error += loss(actual[idx], output) * (1.0 / batch_size);
+
+                for (size_t z = 0; z < output_error.size(); z++) {
+                    batch_grad[z] += output_error[z] * (1.0 / batch_size);
+                }
+            }
+            for (int l = layers.size() - 1; l >= 0; l--) {
+                batch_grad = layers[l]->backward(batch_grad);
+            }
         }
-        error = error / input_data.size();
+        
+        error = error / num_epochs;
         cout << "Epoch " << i << "\tError: " << error << '\n';
         epoch_data.push_back(error);
     }
