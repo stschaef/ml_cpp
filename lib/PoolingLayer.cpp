@@ -11,7 +11,7 @@ PoolingLayer::PoolingLayer(
                        width,
                        num_channels,
                        0,
-                       vector<vector<vector<scalar>>>({{{0}}}),
+                       0,
                        0.0),
       pooling_size(pooling_size) {}
 

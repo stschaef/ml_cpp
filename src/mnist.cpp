@@ -6,7 +6,6 @@
 */
 #include <iostream>
 #include <NeuralNetwork.h>
-#include <opencv4/opencv2/opencv.hpp>  
 #include "matplotlibcpp.h"
 #include "utils.h"
 
@@ -15,24 +14,23 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    vector<scalar> image_vector = flatten_image("/home/stschaef/ml_cpp/data/animals_resized/cat/1.jpeg");
-
+    vector<scalar> image_vector = flatten_mnist_image("/home/stschaef/ml_cpp/data/mnist/testing/0/3.jpg", 8);
     scalar lr = 0.1;
 
-    // TODO: fix this
-    // This is laughably too large, and the layers are overflowing because of it
-    // even without the overflow, it is questionableif i can run this
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(300, 200, 3, 0, 5, lr)));
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(300 - 5 + 1, 200 - 5 + 1, 3, 2)));
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer((300 -5 + 1)/2, (200 -5 + 1)/2, 3, 0, 6, lr)));
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer((300 -5 + 1)/2 - 6 + 1, (200 - 5 + 1)/2 - 6 + 1, 3, 2)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(143 * 93, 2000, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(2000, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2000, 90, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(90, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(90, 9, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(9, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 2, lr))); //output size 28 - 2 + 1 = 27
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(27, 27, 1, 0, 3, lr))); //27 - 3 + 1 = 25
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(25, 25, 1, 0, 2, lr))); //25 - 2 + 1 = 24
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(24, 24, 0, 2)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(12, 12, 1, 0, 3, lr))); //25 - 2 + 1 = 24
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(10, 10, 1, 2)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(100, 64, lr)));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(64, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 32, lr)));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 16, lr)));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(16, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(16, 10, lr)));
 
     vector<scalar> a = n.predict(image_vector);
     
@@ -80,8 +78,8 @@ int main()
     // plt::ylabel("Mean Squared Error");
     // plt::title("Animals training");
     // plt::show();
-    // plt::save("plots/animals_training.pdf");
+    // plt::save("plots/mnist_training.pdf");
 
-    n.save_weights("data/animal_weights.txt");
+    n.save_weights("data/mnist_weights.txt");
     return 0;
 }

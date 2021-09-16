@@ -8,17 +8,13 @@ namespace plt = matplotlibcpp;
 
 int main()
 {
-    vector<uint32_t> seeds(100);
-    std::seed_seq ss{8, 6, 7, 5, 3, 0, 9}; // TODO: change this from hard-coded?
-    ss.generate(seeds.begin(), seeds.end());
-
     scalar lr = 0.1;
 
     cout << "Hello world" << endl;
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(4, 5, lr, seeds[0])));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(4, 5, lr)));
     n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(5, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(5, 3, lr, seeds[1])));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(5, 3, lr)));
     n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(3, hyp_tan, hyp_tan_der)));
 
     // This is the absolute dumbest way to do this

@@ -8,17 +8,13 @@ namespace plt = matplotlibcpp;
 
 int main()
 {
-  vector<uint32_t> seeds(100);
-  std::seed_seq ss{8, 6, 7, 5, 3, 0, 9}; // TODO: change this from hard-coded?
-  ss.generate(seeds.begin(), seeds.end());
-
   scalar lr = 0.1;
 
   cout << "Hello world" << endl;
   NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2, 3, lr, seeds[0])));
+  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2, 3, lr)));
   n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(3, hyp_tan, hyp_tan_der)));
-  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3, 1, lr, seeds[1])));
+  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3, 1, lr)));
   n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(1, hyp_tan, hyp_tan_der)));
 
   vector<vector<scalar>> X;
@@ -47,6 +43,7 @@ int main()
   plt::xlabel("Number of Iterations");
   plt::ylabel("Mean Squared Error");
   plt::title("XOR training");
+  plt::show();
   plt::save("plots/x_or_training.pdf");
 
   n.save_weights("data/weights.txt");

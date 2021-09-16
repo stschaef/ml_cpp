@@ -21,18 +21,20 @@ public:
                      uint height,
                      uint num_channels,
                      uint padding_size,
-                     vector<vector<vector<scalar>>> kernels,
+                     uint kernel_size,
                      scalar learning_rate);
 
     vector<scalar> forward(vector<scalar> input);
     vector<scalar> backward(vector<scalar> output_error);
+
+    inline vector<vector<vector<scalar>>> get_kernels() {return kernels;}
 protected:
     uint height;
     uint width;
 
     uint num_channels;
-    uint kernel_size;
     uint padding_size; 
+    uint kernel_size;
 
     vector<vector<vector<scalar>>> kernels;
 
@@ -45,6 +47,8 @@ protected:
 
     uint output_height;
     uint output_width;
+
+    void initialize_kernels();
 
 };
 

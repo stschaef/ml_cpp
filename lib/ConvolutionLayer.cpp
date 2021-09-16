@@ -7,14 +7,13 @@ ConvolutionLayer::ConvolutionLayer(
     uint width,
     uint num_channels,
     uint padding_size,
-    vector<vector<vector<scalar>>> kernels,
+    uint kernel_size,
     scalar learning_rate) 
     : height(height),
       width(width),
       num_channels(num_channels),
-      kernel_size(kernels[0].size()),
       padding_size(padding_size),
-      kernels(kernels),
+      kernel_size(kernel_size),
       learning_rate(learning_rate)
 {
     uint output_height = height + 2 * padding_size - kernel_size + 1;
@@ -22,6 +21,11 @@ ConvolutionLayer::ConvolutionLayer(
 
     n_inputs = height * width * num_channels;
     n_outputs = output_height * output_width * num_channels;
+
+    kernels = vector<vector<vector<scalar>>>(num_channels, 
+        vector<vector<scalar>>(kernel_size, vector<scalar>(kernel_size, 0)));
+
+    if (kernel_size > 0) initialize_kernels();
 }
 
 uint ConvolutionLayer::input_index(uint vert, uint horiz, uint channel) 
@@ -105,4 +109,20 @@ vector<scalar> ConvolutionLayer::backward(vector<scalar> output_error)
         }
     }
     return input_error;
+}
+
+void ConvolutionLayer::initialize_kernels()
+{
+    rng.seed(seeds[num_seeds_used++]);
+
+    std::uniform_real_distribution<scalar> unif(-.5, .5);
+
+    for (uint c = 0; c < num_channels; c++) {
+        cout << "A\n";
+        for (uint i = 0; i < kernel_size; i++) {
+            for (uint j = 0; j< kernel_size; j++) {
+                kernels[c][i][j] = unif(rng);
+            }
+        }
+    }
 }

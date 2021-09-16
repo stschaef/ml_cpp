@@ -17,8 +17,7 @@ class FullyConnectedLayer : public Layer {
 public:
     FullyConnectedLayer(uint n_in,
                         uint n_out,
-                        scalar learning_rate,
-                        uint32_t seed);
+                        scalar learning_rate);
 
     vector<scalar> forward(vector<scalar> input);
 
@@ -55,7 +54,6 @@ public:
     inline vector<vector<scalar>> get_weights() {return weights;}
     inline vector<scalar> get_biases() {return biases;}
 private:
-    std::mt19937_64 rng;
     void initialize_weights();
 
     vector<vector<scalar>> weights;

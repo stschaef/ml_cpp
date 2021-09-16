@@ -86,10 +86,9 @@ void NeuralNetwork::save_weights(string out_filename)
         for (size_t i = 0; i < layers.size(); i++) {
             char layer_type = layers[i]->get_layer_type();
             switch(layer_type) {
-                case 'a':
-                    out << layer_type << '\n';
-                    break;
-                case 'f':
+                // FullyConnectedLayer
+                case 'a': 
+                {
                     vector<vector<scalar>> layer_weights = (dynamic_cast<FullyConnectedLayer*> (layers[i].get()))->get_weights();
                     vector<scalar> layer_biases = (dynamic_cast<FullyConnectedLayer*> (layers[i].get()))->get_biases();
 
@@ -108,6 +107,41 @@ void NeuralNetwork::save_weights(string out_filename)
                     }
                     out << '\n';
                     break;
+                }
+                // ActivationFunctionLayer
+                case 'b':
+                {
+                    out << layer_type << '\n';
+                    break;
+                }
+                // MaxPoolingLayer
+                case 'c':
+                {
+                    out << layer_type << '\n';  
+                    break;
+                }
+                // AveragePoolingLayer
+                case 'd':
+                {
+                    out << layer_type << '\n'; 
+                    break;
+                }
+                // ConvolutionLayer
+                case 'e':
+                {
+                    vector<vector<vector<scalar>>> kers = (dynamic_cast<ConvolutionLayer*> (layers[i].get()))->get_kernels();
+                    out << "kernels\n";
+                    for (size_t c = 0; c < kers.size(); c++) {
+                        out << "channel\n";
+                        for (size_t j = 0; j < kers[0].size(); j++) {
+                            for (size_t k = 0; k < kers[0][0].size(); k++) {
+                                out << kers[c][j][k] << " ";
+                            }
+                        }
+                        out << '\n';
+                    }
+                    break;
+                }
             }
         }
     }

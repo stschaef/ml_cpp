@@ -5,10 +5,8 @@
 FullyConnectedLayer::FullyConnectedLayer(
     uint n_in,
     uint n_out,
-    scalar learning_rate,
-    uint32_t seed) 
+    scalar learning_rate) 
     : Layer(n_in, n_out),
-      rng(mt19937_64(seed)),
       weights(vector<vector<scalar>>(n_inputs, vector<scalar>(n_outputs))),
       biases(vector<scalar>(n_outputs)),
       learning_rate(learning_rate)
@@ -20,10 +18,11 @@ void FullyConnectedLayer::initialize_weights()
 {
     // Use Xavier weight initialization 
     // Uniform distribution in [-1/sqrt(n_inputs), 1/sqrt(n_inputs)]
+    rng.seed(seeds[num_seeds_used++]);
    
-    double square_root_bound = 1.0 / sqrt(n_inputs);
+    scalar square_root_bound = 1.0 / sqrt(n_inputs);
 
-    std::uniform_real_distribution<double> unif(-square_root_bound,
+    std::uniform_real_distribution<scalar> unif(-square_root_bound,
                                                 square_root_bound);
     
     for (uint i = 0; i < n_inputs; i++) {
