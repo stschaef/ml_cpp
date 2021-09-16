@@ -18,8 +18,8 @@ xor: $(SRC_DIR)/xor.cpp
 iris: $(SRC_DIR)/iris.cpp 
 	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/iris.cpp -o $(BIN_DIR)/iris.o $(PYTHONLINKS)
 
-mnistnocnn: $(SRC_DIR)/mnist.cpp 
-	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS)
+animals: $(SRC_DIR)/animals.cpp 
+	$(CC) $(FLAGS) $(INC) $(PYTHONINCLUDE) $(LIB) $(SRC_DIR)/animals.cpp -o $(BIN_DIR)/animals.o $(PYTHONLINKS)
 
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o
