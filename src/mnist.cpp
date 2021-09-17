@@ -12,25 +12,19 @@ int main()
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 8, 0, 2, lr))); //output size 28 - 2 + 1 = 27
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(27, 27, 8, 0, 3, lr))); //27 - 3 + 1 = 25
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(25, 25, 8, 0, 2, lr))); //25 - 2 + 1 = 24
-    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(24, 24, 8, 2)));
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(12, 12, 8, 0, 3, lr))); //25 - 2 + 1 = 24
-    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(10, 10, 8, 2)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(200, 128, lr)));
-    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(128, hyp_tan, hyp_tan_der)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(128, 64, lr)));
-    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(64, hyp_tan, hyp_tan_der)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 32, lr)));
-    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
-
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 32, lr)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 4, 0, 3, lr))); //output size 28 - 3 + 1 = 26
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 4, 2)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(13, 13, 4, 0, 5, lr))); //13 - 5 + 1 = 9
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(9, 9, 4, 3)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3 * 3 * 4, 32, lr)));
     n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
     n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
+
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
+    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 32, lr)));
+    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
 
     vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
 
@@ -43,12 +37,12 @@ int main()
         label[i] = 1;
 
         for (auto p : train_paths) {
-            X_train_before.push_back(flatten_mnist_image(p, 1));
+            X_train_before.push_back(flatten_mnist_image(p, 4));
             Y_train_before.push_back(label);
         }
 
         for (auto p : test_paths) {
-            X_test.push_back(flatten_mnist_image(p, 1));
+            X_test.push_back(flatten_mnist_image(p, 4));
             Y_test.push_back(label);
         }
     }
@@ -66,20 +60,18 @@ int main()
     }
 
     vector<scalar> testing_accuracy;
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 2, 64, X_test, Y_test, testing_accuracy);
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 150, 32, X_test, Y_test, testing_accuracy);
 
-    vector<int> epochs(2);
+    vector<int> epochs(150);
     iota(epochs.begin(), epochs.end(), 1);
-
-    plt::plot(epochs, epoch_data);
-    plt::xlabel("Number of Epochs");
-    plt::ylabel("Mean Squared Error");
 
     plt::plot(epochs, testing_accuracy);
     plt::xlabel("Number of Epochs");
-    plt::ylabel("Accuracy");
+    plt::ylabel("Test Set Accuracy/MSE");
+
+    plt::plot(epochs, epoch_data);
     
-    plt::title("MNIST Handwriting Training");
+    plt::title("MNIST Handwriting: Test Accuracy and Training Loss (MSE)");
     // plt::show();
     plt::save("plots/mnist_training.pdf");
 

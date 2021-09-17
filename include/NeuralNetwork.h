@@ -7,6 +7,7 @@
 #include <FullyConnectedLayer.h>
 #include <ConvolutionLayer.h>
 #include <PoolingLayer.h>
+#include <sstream>
 
 class NeuralNetwork {
 public:
@@ -30,6 +31,7 @@ public:
     void add(shared_ptr<Layer> l);
 
     void save_weights(string out_filename);
+    void load_weights(string in_filename);
 private:
     vector<shared_ptr<Layer>> layers;
 

@@ -174,3 +174,51 @@ void NeuralNetwork::save_weights(string out_filename)
     }
     out.close();
 }
+
+void NeuralNetwork::load_weights(string in_filename)
+{
+    ifstream in_file(in_filename);
+    for (string line; getline(in_file, line); ) {
+        cout << line << endl;
+        istringstream iss(line);
+        vector<string> words;
+        do
+        {
+            string subs;
+            iss >> word;
+            words.push_back(word);
+        } while (iss);
+        
+        if (!words) return;
+
+        // if (words[0] == "a") {
+
+        // }
+        // else if (words[0] == "b") {
+
+        // }
+        // else if (words[0] == "c") {
+            
+        // }
+        // else if (words[0] == "d") {
+            
+        // }
+        // else if (words[0] == "e") {
+            
+        // }
+        // else if (words[0] == "kernels") {
+            
+        // }
+        // else if (words[0] == "channel") {
+            
+        // }
+        // else if (words[0] == "weights") {
+            
+        // }
+        // else if (words[0] == "biases") {
+            
+        // }
+
+        return;
+    }
+}

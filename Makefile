@@ -25,6 +25,9 @@ animals: $(SRC_DIR)/animals.cpp
 mnist: $(SRC_DIR)/mnist.cpp 
 	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS) $(OPEN_CV)
 
+seven: $(SRC_DIR)/seven.cpp 
+	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/seven.cpp -o $(BIN_DIR)/seven.o $(PYTHONLINKS) $(OPEN_CV)
+
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o
 
