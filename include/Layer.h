@@ -18,7 +18,7 @@ using namespace std;
 class Layer {
 public:
     Layer();
-    Layer(uint n_in, uint n_out) : n_inputs(n_in), n_outputs(n_out) {
+    Layer(int n_in, int n_out) : n_inputs(n_in), n_outputs(n_out) {
         if(!are_generated) {
             ss.generate(Layer::seeds.begin(), Layer::seeds.end());
             are_generated = true;
@@ -30,18 +30,18 @@ public:
     vector<scalar> in;
 
     char get_layer_type();
-    inline uint get_n_inputs() {return n_inputs;};
-    inline uint get_n_outputs() {return n_outputs;};
+    inline int get_n_inputs() {return n_inputs;};
+    inline int get_n_outputs() {return n_outputs;};
 protected:
-    uint n_inputs;
-    uint n_outputs;
+    int n_inputs;
+    int n_outputs;
 
     static bool are_generated; // this is a bad way to initalize the static seeds
     // but they need to be generated with ss.generate() which is not 
     // a nice constant expression
     static std::seed_seq ss;
-    static uint num_seeds_used;
-    static vector<uint32_t> seeds;
+    static int num_seeds_used;
+    static vector<int32_t> seeds;
     static std::mt19937_64 rng;
 };
 

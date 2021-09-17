@@ -3,10 +3,10 @@
 // ___________PoolingLayer Implementations___________
 
 PoolingLayer::PoolingLayer(
-    uint height,
-    uint width,
-    uint num_channels,
-    uint pooling_size)
+    int height,
+    int width,
+    int num_channels,
+    int pooling_size)
     : ConvolutionLayer(height,
                        width,
                        num_channels,
@@ -17,10 +17,10 @@ PoolingLayer::PoolingLayer(
 
 // ___________MaxPoolingLayer Implementations___________
 MaxPoolingLayer::MaxPoolingLayer(
-    uint width,
-    uint height,
-    uint num_channels,
-    uint pooling_size)
+    int width,
+    int height,
+    int num_channels,
+    int pooling_size)
     : PoolingLayer(height,
                    width,
                    num_channels,
@@ -35,15 +35,15 @@ vector<scalar> MaxPoolingLayer::forward(vector<scalar> input)
     vector<scalar> output;
     max_homes.clear();
 
-    for (uint c = 0 ; c < num_channels; c++) {
+    for (int c = 0 ; c < num_channels; c++) {
         vector<vector<scalar>> kernel = kernels[c];
-        for (uint i = 0; i < height; i = i + pooling_size) {
-            for (uint j = 0; j < width; j = j + pooling_size) {
+        for (int i = 0; i < height; i = i + pooling_size) {
+            for (int j = 0; j < width; j = j + pooling_size) {
                 scalar biggest = scalar(std::numeric_limits<double>::lowest());
-                uint biggest_index = -1;
+                int biggest_index = -1;
 
-                for (uint y = i; y < i + pooling_size; y++) {
-                    for (uint x = j; x < j + pooling_size; x++) {
+                for (int y = i; y < i + pooling_size; y++) {
+                    for (int x = j; x < j + pooling_size; x++) {
                         scalar value;
                         if (is_padding(y, x)) value = padded_value(y, x, c);
                         else value = input[input_index(y, x, c)];
@@ -74,10 +74,10 @@ vector<scalar> MaxPoolingLayer::backward(vector<scalar> output_error)
 
 // ___________AveragePoolingLayer Implementations___________
 AveragePoolingLayer::AveragePoolingLayer(
-    uint width,
-    uint height,
-    uint num_channels,
-    uint pooling_size)
+    int width,
+    int height,
+    int num_channels,
+    int pooling_size)
     : PoolingLayer(height,
                    width,
                    num_channels,
@@ -91,13 +91,13 @@ vector<scalar> AveragePoolingLayer::forward(vector<scalar> input)
     in = input;
     vector<scalar> output;
 
-    for (uint c = 0 ; c < num_channels; c++) {
+    for (int c = 0 ; c < num_channels; c++) {
         vector<vector<scalar>> kernel = kernels[c];
-        for (uint i = 0; i < height; i = i + pooling_size) {
-            for (uint j = 0; j < width; j = j + pooling_size) {
+        for (int i = 0; i < height; i = i + pooling_size) {
+            for (int j = 0; j < width; j = j + pooling_size) {
                 scalar sum = scalar(0);
-                for (uint y = i; y < i + pooling_size; y++) {
-                    for (uint x = j; x < j + pooling_size; x++) {
+                for (int y = i; y < i + pooling_size; y++) {
+                    for (int x = j; x < j + pooling_size; x++) {
                         scalar value;
                         if (is_padding(y, x)) value = padded_value(y, x, c);
                         else value = input[input_index(y, x, c)];
@@ -116,12 +116,12 @@ vector<scalar> AveragePoolingLayer::forward(vector<scalar> input)
 vector<scalar> AveragePoolingLayer::backward(vector<scalar> output_error)
 {
     vector<scalar> output(n_inputs, 0);
-    for (uint c = 0; c < num_channels; c++) {
-        for (uint i = 0; i < height; i++) {
-            for (uint j = 0; j < width; j++) {
-                uint out_height = height / pooling_size;
-                uint out_width = width / pooling_size;
-                uint out_idx = c * out_height * out_width + (i / pooling_size) * out_width + (j / pooling_size);
+    for (int c = 0; c < num_channels; c++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int out_height = height / pooling_size;
+                int out_width = width / pooling_size;
+                int out_idx = c * out_height * out_width + (i / pooling_size) * out_width + (j / pooling_size);
                 output[input_index(i, j, c)] = output_error[out_idx];
             }
         }

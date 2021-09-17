@@ -1,11 +1,12 @@
+#include <inttypes.h>
 #include <iostream>
 #include <NeuralNetwork.h>
-#include <Python.h>
+// #include <Python.h>
 #include <csignal>
 #include "matplotlibcpp.h"
 
 using namespace std;
-namespace plt = matplotlibcpp;
+// namespace plt = matplotlibcpp;
 
 void signalHandler( int signum ) {
    cout << "Interrupt signal (" << signum << ") received.\n";
@@ -20,6 +21,7 @@ int main()
     scalar lr = 0.1;
 
     cout << "Hello world" << endl;
+    // printf("Adsfadsf");
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
     n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(4, 5, lr)));
     n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(5, hyp_tan, hyp_tan_der)));
@@ -350,17 +352,19 @@ int main()
         Y_test.push_back(Y[indices[i]]);
     }
 
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 5000, 8, X_test, Y_test);
+    vector<scalar> testing_accuracy;
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 50, 8, X_test, Y_test, testing_accuracy);
 
-    vector<int> epochs(5000);
+    vector<int> epochs(50);
     iota(epochs.begin(), epochs.end(), 1);
 
-    plt::plot(epochs, epoch_data);
-    plt::xlabel("Number of Epochs");
-    plt::ylabel("Mean Squared Error");
-    plt::title("Iris training");
-    plt::save("plots/iris_training.pdf");
+    // plt::plot(epochs, epoch_data);
+    // plt::plot(epochs, testing_accuracy);
+    // plt::xlabel("Number of Epochs");
+    // plt::ylabel("Accuracy/MSE");
+    // plt::title("Iris training");
+    // plt::save("plots/iris_training.pdf");
 
-    n.save_weights("data/iris_weights.txt");
+    // n.save_weights("data/iris_weights.txt");
     return 0;
 }

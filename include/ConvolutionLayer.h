@@ -17,11 +17,11 @@ public:
      * 
      * Throughout layer, work with a flattened array partioned into num_channels chunks
      */
-    ConvolutionLayer(uint width,
-                     uint height,
-                     uint num_channels,
-                     uint padding_size,
-                     uint kernel_size,
+    ConvolutionLayer(int width,
+                     int height,
+                     int num_channels,
+                     int padding_size,
+                     int kernel_size,
                      scalar learning_rate);
 
     vector<scalar> forward(vector<scalar> input);
@@ -29,24 +29,24 @@ public:
 
     inline vector<vector<vector<scalar>>> get_kernels() {return kernels;}
 protected:
-    uint height;
-    uint width;
+    int height;
+    int width;
 
-    uint num_channels;
-    uint padding_size; 
-    uint kernel_size;
+    int num_channels;
+    int padding_size; 
+    int kernel_size;
 
     vector<vector<vector<scalar>>> kernels;
 
     scalar learning_rate;
 
-    uint input_index(uint vert, uint horiz, uint channel);
-    uint output_index(uint vert, uint horiz, uint channel);
-    scalar padded_value(uint vert, uint horiz, uint channel);
-    bool is_padding(uint vert, uint horiz);
+    int input_index(int vert, int horiz, int channel);
+    int output_index(int vert, int horiz, int channel);
+    scalar padded_value(int vert, int horiz, int channel);
+    bool is_padding(int vert, int horiz);
 
-    uint output_height;
-    uint output_width;
+    int output_height;
+    int output_width;
 
     void initialize_kernels();
 

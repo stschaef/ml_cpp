@@ -25,8 +25,8 @@ Layer::Layer() {
 }
 
 bool Layer::are_generated = false;
-uint Layer::num_seeds_used = 0;
+int Layer::num_seeds_used = 0;
 std::seed_seq Layer::ss{8, 6, 7, 5, 3, 0, 9};
-vector<uint32_t> Layer::seeds(100);
+vector<int32_t> Layer::seeds(100);
 std::mt19937_64 Layer::rng(0);
 

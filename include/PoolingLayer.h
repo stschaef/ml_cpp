@@ -6,36 +6,36 @@
 
 class PoolingLayer : public ConvolutionLayer {
 public:
-    PoolingLayer(uint height,
-                 uint width,
-                 uint num_channels,
-                 uint pooling_size);
+    PoolingLayer(int height,
+                 int width,
+                 int num_channels,
+                 int pooling_size);
     
     virtual vector<scalar> forward(vector<scalar> input) = 0;
     virtual vector<scalar> backward(vector<scalar> output_error) = 0;
 protected:
-    uint pooling_size;
+    int pooling_size;
 };
 
 class MaxPoolingLayer : public PoolingLayer {
 public:
-    MaxPoolingLayer(uint height,
-                    uint width,
-                    uint num_channels,
-                    uint pooling_size);
+    MaxPoolingLayer(int height,
+                    int width,
+                    int num_channels,
+                    int pooling_size);
     
     vector<scalar> forward(vector<scalar> input);
     vector<scalar> backward(vector<scalar> output_error);
 private:
-    vector<uint> max_homes;
+    vector<int> max_homes;
 };
 
 class AveragePoolingLayer : public PoolingLayer {
 public:
-    AveragePoolingLayer(uint height,
-                        uint width,
-                        uint num_channels,
-                        uint pooling_size);
+    AveragePoolingLayer(int height,
+                        int width,
+                        int num_channels,
+                        int pooling_size);
     
     vector<scalar> forward(vector<scalar> input);
     vector<scalar> backward(vector<scalar> output_error);

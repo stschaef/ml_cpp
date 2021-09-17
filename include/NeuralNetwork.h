@@ -19,8 +19,8 @@ public:
 
     vector<scalar> train(vector<vector<scalar>>& input_data,
                vector<vector<scalar>>& actual,
-               uint num_epochs,
-               uint batch_size,
+               int num_epochs,
+               int batch_size,
                vector<vector<scalar>>& X_test,
                vector<vector<scalar>>& Y_test,
                vector<scalar>& testing_accuracy);
@@ -36,7 +36,7 @@ private:
     vector<shared_ptr<Layer>> layers;
 
     void generate_seeds();
-    vector<uint32_t> seeds;
+    vector<int32_t> seeds;
 
     scalar learning_rate;
 

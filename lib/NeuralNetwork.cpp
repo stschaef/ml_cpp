@@ -22,8 +22,8 @@ vector<scalar> NeuralNetwork::predict(vector<scalar> input)
 vector<scalar> NeuralNetwork::train(
     vector<vector<scalar>>& input_data,
     vector<vector<scalar>>& actual,
-    uint num_epochs,
-    uint batch_size,
+    int num_epochs,
+    int batch_size,
     vector<vector<scalar>>& X_test,
     vector<vector<scalar>>& Y_test,
     vector<scalar>& testing_accuracy)
@@ -34,14 +34,14 @@ vector<scalar> NeuralNetwork::train(
     vector<int> indices(num_samples);
     iota(indices.begin(), indices.end(), 0);
 
-    for (uint i = 0; i < num_epochs; i++) {
+    for (int i = 0; i < num_epochs; i++) {
         random_shuffle(indices.begin(), indices.end());
         scalar error = 0.0;
 
-        uint j = 0;
-        uint k = 0;
+        int j = 0;
+        int k = 0;
 
-        while (j < num_samples) {
+        while (j < int(num_samples)) {
             vector<int> mini_batch;
             while (k < batch_size) {
                 j++;
@@ -70,10 +70,12 @@ vector<scalar> NeuralNetwork::train(
         
         error = error / (num_samples / batch_size);
         cout << "Epoch " << i << "\tError: " << error << '\n';
+        // printf("Epoch: %d \tError: %f \n", i, error);
         epoch_data.push_back(error);
 
         scalar accuracy = this->test(X_test, Y_test);
         cout << "Accuracy: " << accuracy << '\n';
+        // printf("Accuracy: %f \n", accuracy);
         testing_accuracy.push_back(accuracy);
     }
     return epoch_data;
@@ -184,12 +186,12 @@ void NeuralNetwork::load_weights(string in_filename)
         vector<string> words;
         do
         {
-            string subs;
+            string word;
             iss >> word;
             words.push_back(word);
         } while (iss);
         
-        if (!words) return;
+        if (words.empty()) return;
 
         // if (words[0] == "a") {
 

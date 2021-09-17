@@ -3,8 +3,8 @@
 
 // ___________FullyConnectedLayer Implementations___________
 FullyConnectedLayer::FullyConnectedLayer(
-    uint n_in,
-    uint n_out,
+    int n_in,
+    int n_out,
     scalar learning_rate) 
     : Layer(n_in, n_out),
       weights(vector<vector<scalar>>(n_inputs, vector<scalar>(n_outputs))),
@@ -25,13 +25,13 @@ void FullyConnectedLayer::initialize_weights()
     std::uniform_real_distribution<scalar> unif(-square_root_bound,
                                                 square_root_bound);
     
-    for (uint i = 0; i < n_inputs; i++) {
-        for (uint j = 0; j < n_outputs; j++) {
+    for (int i = 0; i < n_inputs; i++) {
+        for (int j = 0; j < n_outputs; j++) {
             weights[i][j] = unif(rng);
         }
     }
 
-    for (uint i = 0; i < n_outputs; i++) {
+    for (int i = 0; i < n_outputs; i++) {
         biases[i] = unif(rng);
     }
 }
@@ -40,9 +40,9 @@ vector<scalar> FullyConnectedLayer::forward(vector<scalar> input)
 {  
     in = input;
     vector<scalar> output(n_outputs);
-    for (uint j = 0; j < n_outputs; j++) {
+    for (int j = 0; j < n_outputs; j++) {
         output[j] = biases[j];
-        for (uint i = 0; i < n_inputs; i++) {
+        for (int i = 0; i < n_inputs; i++) {
             output[j] += input[i] * weights[i][j];
         }
     }
@@ -83,14 +83,14 @@ vector<scalar> FullyConnectedLayer::backward(
 
     vector<scalar> input_error(n_inputs, 0);
 
-    for (uint i = 0; i < n_inputs; i++) {
-        for (uint j = 0; j < n_outputs; j++) {
+    for (int i = 0; i < n_inputs; i++) {
+        for (int j = 0; j < n_outputs; j++) {
             input_error[i] += output_error[j] * weights[i][j];
             weights[i][j] -= learning_rate * output_error[j] * in[i];
         }
     }
 
-    for (uint i = 0; i < n_outputs; i++) {
+    for (int i = 0; i < n_outputs; i++) {
         biases[i] -= learning_rate * output_error[i];
     }
     

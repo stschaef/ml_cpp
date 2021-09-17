@@ -15,8 +15,8 @@ class FullyConnectedLayer : public Layer {
  * biases: B
  */
 public:
-    FullyConnectedLayer(uint n_in,
-                        uint n_out,
+    FullyConnectedLayer(int n_in,
+                        int n_out,
                         scalar learning_rate);
 
     vector<scalar> forward(vector<scalar> input);

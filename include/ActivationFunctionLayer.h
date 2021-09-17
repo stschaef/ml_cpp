@@ -7,7 +7,7 @@
 class ActivationFunctionLayer : public Layer {
 public:
     // n_in == n_out in this layer
-    ActivationFunctionLayer(uint n,
+    ActivationFunctionLayer(int n,
                             function<scalar(scalar)> activation,
                             function<scalar(scalar)> activation_der);
 
