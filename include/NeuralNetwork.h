@@ -20,8 +20,13 @@ public:
                vector<vector<scalar>>& actual,
                uint num_epochs,
                uint batch_size,
-               vector<vector<scalar>> X_test,
-               vector<vector<scalar>> Y_test);
+               vector<vector<scalar>>& X_test,
+               vector<vector<scalar>>& Y_test,
+               vector<scalar>& testing_accuracy);
+
+    scalar test(vector<vector<scalar>>& X_test,
+                vector<vector<scalar>>& Y_test);
+
     void add(shared_ptr<Layer> l);
 
     void save_weights(string out_filename);

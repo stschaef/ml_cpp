@@ -1,7 +1,5 @@
 #include <NeuralNetwork.h>
-// #include <Layer.h>
-// #include <FullyConnectedLayer.h>
-// #include
+
 // ___________NeuralNetwork Implementations___________
 
 NeuralNetwork::NeuralNetwork(
@@ -26,8 +24,9 @@ vector<scalar> NeuralNetwork::train(
     vector<vector<scalar>>& actual,
     uint num_epochs,
     uint batch_size,
-    vector<vector<scalar>> X_test,
-    vector<vector<scalar>> Y_test)
+    vector<vector<scalar>>& X_test,
+    vector<vector<scalar>>& Y_test,
+    vector<scalar>& testing_accuracy)
 {
     vector<scalar> epoch_data;
     size_t num_samples = input_data.size();
@@ -73,23 +72,29 @@ vector<scalar> NeuralNetwork::train(
         cout << "Epoch " << i << "\tError: " << error << '\n';
         epoch_data.push_back(error);
 
-        int num_right = 0;
-        for (size_t i = 0; i < X_test.size(); i++) {
-            vector<scalar> test_output = this->predict(X_test[i]);
-            scalar biggest = -200;
-            int biggest_index = -1;
-            for (size_t j = 0; j < test_output.size(); j++) {
-                if (test_output[j] > biggest) {
-                    biggest_index = j;
-                    biggest = test_output[j];
-                }
-            }
-            if (Y_test[i][biggest_index] == 1) num_right++;
-        }
-
-    cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
+        scalar accuracy = this->test(X_test, Y_test);
+        cout << "Accuracy: " << accuracy << '\n';
+        testing_accuracy.push_back(accuracy);
     }
     return epoch_data;
+}
+
+scalar NeuralNetwork::test(vector<vector<scalar>>& X_test,
+                           vector<vector<scalar>>& Y_test) 
+{
+    int num_right = 0;
+    for (size_t i = 0; i < X_test.size(); i++) {
+        vector<scalar> test_output = this->predict(X_test[i]);
+        int biggest_index = 0;
+        for (size_t j = 0; j < test_output.size(); j++) {
+            if (test_output[j] > test_output[biggest_index]) {
+                biggest_index = j;
+            }
+        }
+        if (Y_test[i][biggest_index] == 1) num_right++;
+    }
+
+    return scalar(num_right) / scalar(X_test.size());
 }
 
 void NeuralNetwork::add(shared_ptr<Layer> l)
@@ -130,24 +135,27 @@ void NeuralNetwork::save_weights(string out_filename)
                 // ActivationFunctionLayer
                 case 'b':
                 {
-                    out << layer_type << '\n';
+                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+
                     break;
                 }
                 // MaxPoolingLayer
                 case 'c':
                 {
-                    out << layer_type << '\n';  
+                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
                     break;
                 }
                 // AveragePoolingLayer
                 case 'd':
                 {
-                    out << layer_type << '\n'; 
+                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
                     break;
                 }
                 // ConvolutionLayer
                 case 'e':
                 {
+                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+
                     vector<vector<vector<scalar>>> kers = (dynamic_cast<ConvolutionLayer*> (layers[i].get()))->get_kernels();
                     out << "kernels\n";
                     for (size_t c = 0; c < kers.size(); c++) {

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <NeuralNetwork.h>
 #include <opencv4/opencv2/opencv.hpp>  
+#include <csignal>
 #include "matplotlibcpp.h"
 #include "utils.h"
 

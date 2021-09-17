@@ -29,7 +29,7 @@ int main()
   Y.push_back(vector<scalar>({1}));
   Y.push_back(vector<scalar>({0}));
 
-  vector<scalar> epoch_data = n.train(X, Y, 1000, 1);
+  vector<scalar> epoch_data = n.train(X, Y, 1000, 1, X, Y);
 
   vector<vector<scalar>> output;
   for (size_t i = 0; i < X.size(); i++) {

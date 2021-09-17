@@ -1,13 +1,22 @@
 #include <iostream>
 #include <NeuralNetwork.h>
 #include <Python.h>
+#include <csignal>
 #include "matplotlibcpp.h"
 
 using namespace std;
 namespace plt = matplotlibcpp;
 
+void signalHandler( int signum ) {
+   cout << "Interrupt signal (" << signum << ") received.\n";
+
+   exit(signum);  
+}
+
 int main()
 {
+    signal(SIGINT, signalHandler);
+
     scalar lr = 0.1;
 
     cout << "Hello world" << endl;
@@ -327,6 +336,8 @@ int main()
 
     vector<int> indices(X.size());
     iota(indices.begin(), indices.end(), 0);
+    random_shuffle(indices.begin(), indices.end());
+
     vector<int> train, test;
     vector<vector<scalar>> X_train, X_test, Y_train, Y_test;
 
@@ -339,33 +350,13 @@ int main()
         Y_test.push_back(Y[indices[i]]);
     }
 
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 16, X_test, Y_test);
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 5000, 8, X_test, Y_test);
 
-    vector<vector<scalar>> output;
-    for (size_t i = 0; i < X.size(); i++) {
-        output.push_back(n.predict(X[i]));
-    }
-    int num_right = 0;
-    for (size_t i = 0; i < X_test.size(); i++) {
-        vector<scalar> output = n.predict(X_test[i]);
-        scalar biggest = -200000;
-        int biggest_index = -1;
-        for (size_t j = 0; j < output.size(); j++) {
-            if (output[j] > biggest) {
-                biggest = output[j];
-                biggest_index = j;
-            }
-        }
-        if (Y_test[i][biggest_index] == 1) num_right++;
-    }
-
-    cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
-
-    vector<int> epochs(1000);
+    vector<int> epochs(5000);
     iota(epochs.begin(), epochs.end(), 1);
 
     plt::plot(epochs, epoch_data);
-    plt::xlabel("Number of Iterations");
+    plt::xlabel("Number of Epochs");
     plt::ylabel("Mean Squared Error");
     plt::title("Iris training");
     plt::save("plots/iris_training.pdf");

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <NeuralNetwork.h>
+// #include <csignal>
 #include "matplotlibcpp.h"
 #include "utils.h"
 
@@ -64,16 +65,22 @@ int main()
         Y_train.push_back(Y_train_before[indices[i]]);
     }
 
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 32, X_test, Y_test);
+    vector<scalar> testing_accuracy;
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 2, 64, X_test, Y_test, testing_accuracy);
 
-    vector<int> epochs(1000);
+    vector<int> epochs(2);
     iota(epochs.begin(), epochs.end(), 1);
 
     plt::plot(epochs, epoch_data);
-    plt::xlabel("Number of Iterations");
+    plt::xlabel("Number of Epochs");
     plt::ylabel("Mean Squared Error");
+
+    plt::plot(epochs, testing_accuracy);
+    plt::xlabel("Number of Epochs");
+    plt::ylabel("Accuracy");
+    
     plt::title("MNIST Handwriting Training");
-    plt::show();
+    // plt::show();
     plt::save("plots/mnist_training.pdf");
 
     n.save_weights("data/mnist_weights.txt");
