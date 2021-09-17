@@ -16,8 +16,8 @@ ConvolutionLayer::ConvolutionLayer(
       kernel_size(kernel_size),
       learning_rate(learning_rate)
 {
-    uint output_height = height + 2 * padding_size - kernel_size + 1;
-    uint output_width = width + 2 * padding_size - kernel_size + 1;
+    output_height = height + 2 * padding_size - kernel_size + 1;
+    output_width = width + 2 * padding_size - kernel_size + 1;
 
     n_inputs = height * width * num_channels;
     n_outputs = output_height * output_width * num_channels;
@@ -118,7 +118,6 @@ void ConvolutionLayer::initialize_kernels()
     std::uniform_real_distribution<scalar> unif(-.5, .5);
 
     for (uint c = 0; c < num_channels; c++) {
-        cout << "A\n";
         for (uint i = 0; i < kernel_size; i++) {
             for (uint j = 0; j< kernel_size; j++) {
                 kernels[c][i][j] = unif(rng);

@@ -33,6 +33,7 @@ vector<scalar> MaxPoolingLayer::forward(vector<scalar> input)
 {
     in = input;
     vector<scalar> output;
+    max_homes.clear();
 
     for (uint c = 0 ; c < num_channels; c++) {
         vector<vector<scalar>> kernel = kernels[c];

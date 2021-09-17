@@ -339,7 +339,7 @@ int main()
         Y_test.push_back(Y[indices[i]]);
     }
 
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 8);
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 16, X_test, Y_test);
 
     vector<vector<scalar>> output;
     for (size_t i = 0; i < X.size(); i++) {
@@ -348,10 +348,13 @@ int main()
     int num_right = 0;
     for (size_t i = 0; i < X_test.size(); i++) {
         vector<scalar> output = n.predict(X_test[i]);
-        scalar biggest = -200;
+        scalar biggest = -200000;
         int biggest_index = -1;
         for (size_t j = 0; j < output.size(); j++) {
-            if (output[j] > biggest) biggest_index = j;
+            if (output[j] > biggest) {
+                biggest = output[j];
+                biggest_index = j;
+            }
         }
         if (Y_test[i][biggest_index] == 1) num_right++;
     }

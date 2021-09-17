@@ -19,7 +19,9 @@ public:
     vector<scalar> train(vector<vector<scalar>>& input_data,
                vector<vector<scalar>>& actual,
                uint num_epochs,
-               uint batch_size);
+               uint batch_size,
+               vector<vector<scalar>> X_test,
+               vector<vector<scalar>> Y_test);
     void add(shared_ptr<Layer> l);
 
     void save_weights(string out_filename);

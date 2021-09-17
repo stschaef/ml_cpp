@@ -25,7 +25,9 @@ vector<scalar> NeuralNetwork::train(
     vector<vector<scalar>>& input_data,
     vector<vector<scalar>>& actual,
     uint num_epochs,
-    uint batch_size)
+    uint batch_size,
+    vector<vector<scalar>> X_test,
+    vector<vector<scalar>> Y_test)
 {
     vector<scalar> epoch_data;
     size_t num_samples = input_data.size();
@@ -45,7 +47,7 @@ vector<scalar> NeuralNetwork::train(
             while (k < batch_size) {
                 j++;
                 k++;
-                mini_batch.push_back(j % num_samples);
+                mini_batch.push_back(indices[j] % num_samples);
             }
             k = 0;
 
@@ -61,14 +63,31 @@ vector<scalar> NeuralNetwork::train(
                     batch_grad[z] += output_error[z] * (1.0 / batch_size);
                 }
             }
+
             for (int l = layers.size() - 1; l >= 0; l--) {
                 batch_grad = layers[l]->backward(batch_grad);
             }
         }
         
-        error = error / num_epochs;
+        error = error / (num_samples / batch_size);
         cout << "Epoch " << i << "\tError: " << error << '\n';
         epoch_data.push_back(error);
+
+        int num_right = 0;
+        for (size_t i = 0; i < X_test.size(); i++) {
+            vector<scalar> test_output = this->predict(X_test[i]);
+            scalar biggest = -200;
+            int biggest_index = -1;
+            for (size_t j = 0; j < test_output.size(); j++) {
+                if (test_output[j] > biggest) {
+                    biggest_index = j;
+                    biggest = test_output[j];
+                }
+            }
+            if (Y_test[i][biggest_index] == 1) num_right++;
+        }
+
+    cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
     }
     return epoch_data;
 }

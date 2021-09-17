@@ -15,7 +15,7 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    vector<scalar> image_vector = flatten_image("/home/stschaef/ml_cpp/data/animals_resized/cat/1.jpeg");
+    vector<scalar> image_vector = flatten_animals_image("/home/stschaef/ml_cpp/data/animals_resized/cat/1.jpeg");
 
     scalar lr = 0.1;
 

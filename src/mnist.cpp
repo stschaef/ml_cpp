@@ -1,9 +1,3 @@
-/*
- * Data sourced from https://www.kaggle.com/alessiocorrado99/animals10
- * Got rid of spider pictures and non .jpeg files
- * Then resized all to (300,200)
- *
-*/
 #include <iostream>
 #include <NeuralNetwork.h>
 #include "matplotlibcpp.h"
@@ -14,71 +8,73 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    vector<scalar> image_vector = flatten_mnist_image("/home/stschaef/ml_cpp/data/mnist/testing/0/3.jpg", 8);
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 2, lr))); //output size 28 - 2 + 1 = 27
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(27, 27, 1, 0, 3, lr))); //27 - 3 + 1 = 25
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(25, 25, 1, 0, 2, lr))); //25 - 2 + 1 = 24
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(24, 24, 0, 2)));
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(12, 12, 1, 0, 3, lr))); //25 - 2 + 1 = 24
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(10, 10, 1, 2)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(100, 64, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(64, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 32, lr)));
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 8, 0, 2, lr))); //output size 28 - 2 + 1 = 27
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(27, 27, 8, 0, 3, lr))); //27 - 3 + 1 = 25
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(25, 25, 8, 0, 2, lr))); //25 - 2 + 1 = 24
+    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(24, 24, 8, 2)));
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(12, 12, 8, 0, 3, lr))); //25 - 2 + 1 = 24
+    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(10, 10, 8, 2)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(200, 128, lr)));
+    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(128, hyp_tan, hyp_tan_der)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(128, 64, lr)));
+    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(64, hyp_tan, hyp_tan_der)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 32, lr)));
+    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
+
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 32, lr)));
     n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 16, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(16, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(16, 10, lr)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
 
-    vector<scalar> a = n.predict(image_vector);
+    vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
+
+    for (int i = 0; i < 10; i++) {
+        vector<string> train_paths = mnist_train(i); 
+        vector<string> test_paths = mnist_test(i); 
+
+        // make categorical labels
+        vector<scalar> label(10, 0);
+        label[i] = 1;
+
+        for (auto p : train_paths) {
+            X_train_before.push_back(flatten_mnist_image(p, 1));
+            Y_train_before.push_back(label);
+        }
+
+        for (auto p : test_paths) {
+            X_test.push_back(flatten_mnist_image(p, 1));
+            Y_test.push_back(label);
+        }
+    }
     
-    // vector<vector<scalar>> X;
-    // vector<vector<scalar>> Y;
+    // Randomize order of training
+    vector<int> indices(X_train_before.size());
+    iota(indices.begin(), indices.end(), 0);
+    
+    random_shuffle(indices.begin(), indices.end());
 
-    // vector<int> indices(X.size());
-    // iota(indices.begin(), indices.end(), 0);
-    // vector<int> train, test;
-    // vector<vector<scalar>> X_train, X_test, Y_train, Y_test;
+    // Could maybe do this in place with a permutation, but this is easy
+    for (size_t i = 0; i < indices.size(); i++) {
+        X_train.push_back(X_train_before[indices[i]]);
+        Y_train.push_back(Y_train_before[indices[i]]);
+    }
 
-    // for (int i = 0; i < int(.8 * 150); i++) {
-    //     X_train.push_back(X[indices[i]]);
-    //     Y_train.push_back(Y[indices[i]]);
-    // }
-    // for (int i = int(.8 * 150); i < 150; i++) {
-    //     X_test.push_back(X[indices[i]]);
-    //     Y_test.push_back(Y[indices[i]]);
-    // }
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 32, X_test, Y_test);
 
-    // vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 8);
+    vector<int> epochs(1000);
+    iota(epochs.begin(), epochs.end(), 1);
 
-    // vector<vector<scalar>> output;
-    // for (size_t i = 0; i < X.size(); i++) {
-    //     output.push_back(n.predict(X[i]));
-    // }
-    // int num_right = 0;
-    // for (size_t i = 0; i < X_test.size(); i++) {
-    //     vector<scalar> output = n.predict(X_test[i]);
-    //     scalar biggest = -200;
-    //     int biggest_index = -1;
-    //     for (size_t j = 0; j < output.size(); j++) {
-    //         if (output[j] > biggest) biggest_index = j;
-    //     }
-    //     if (Y_test[i][biggest_index] == 1) num_right++;
-    // }
-
-    // cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
-
-    // vector<int> epochs(1000);
-    // iota(epochs.begin(), epochs.end(), 1);
-
-    // plt::plot(epochs, epoch_data);
-    // plt::xlabel("Number of Iterations");
-    // plt::ylabel("Mean Squared Error");
-    // plt::title("Animals training");
-    // plt::show();
-    // plt::save("plots/mnist_training.pdf");
+    plt::plot(epochs, epoch_data);
+    plt::xlabel("Number of Iterations");
+    plt::ylabel("Mean Squared Error");
+    plt::title("MNIST Handwriting Training");
+    plt::show();
+    plt::save("plots/mnist_training.pdf");
 
     n.save_weights("data/mnist_weights.txt");
     return 0;

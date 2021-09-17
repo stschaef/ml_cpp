@@ -29,7 +29,7 @@ int main()
   Y.push_back(vector<scalar>({1}));
   Y.push_back(vector<scalar>({0}));
 
-  vector<scalar> epoch_data = n.train(X, Y, 1000, 32);
+  vector<scalar> epoch_data = n.train(X, Y, 1000, 1);
 
   vector<vector<scalar>> output;
   for (size_t i = 0; i < X.size(); i++) {
@@ -43,9 +43,9 @@ int main()
   plt::xlabel("Number of Iterations");
   plt::ylabel("Mean Squared Error");
   plt::title("XOR training");
-  plt::show();
   plt::save("plots/x_or_training.pdf");
+  plt::show();
 
-  n.save_weights("data/weights.txt");
+  n.save_weights("data/xor_weights.txt");
   return 0;
 }

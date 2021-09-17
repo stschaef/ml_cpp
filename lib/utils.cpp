@@ -34,7 +34,7 @@ vector<scalar> flatten_mnist_image(string image_path, uint num_channels)
     img_vec.reserve(image.rows * image.cols);
     for(int i = 0; i < image.rows; i++) {
         for (int j = 0; j < image.cols; j++) {
-            img_vec.push_back(image.at<uchar>(i, j));
+            img_vec.push_back(image.at<uchar>(i, j) / 255.0); // normalize
         }
     }
     vector<scalar> output;
@@ -44,4 +44,22 @@ vector<scalar> flatten_mnist_image(string image_path, uint num_channels)
     }
     
     return output;
+}
+
+vector<string> mnist_test(int digit)
+{
+    string test_folder = "/home/stschaef/ml_cpp/data/mnist/testing/" + to_string(digit) + "/*";
+    vector<cv::String> filenames;
+    cv::glob(test_folder, filenames, true);
+
+    return filenames;
+}
+
+vector<string> mnist_train(int digit)
+{
+    string test_folder = "/home/stschaef/ml_cpp/data/mnist/training/" + to_string(digit) + "/*";;
+    vector<cv::String> filenames;
+    cv::glob(test_folder, filenames, true);
+
+    return filenames;
 }
