@@ -349,18 +349,18 @@ int main()
         X_test.push_back(X[indices[i]]);
         Y_test.push_back(Y[indices[i]]);
     }
+    vector<scalar> testing_accuracy;
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 50, 8, X_test, Y_test, testing_accuracy);
 
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 5000, 8, X_test, Y_test);
-
-    vector<int> epochs(5000);
+    vector<int> epochs(50);
     iota(epochs.begin(), epochs.end(), 1);
 
-    plt::plot(epochs, epoch_data);
-    plt::xlabel("Number of Epochs");
-    plt::ylabel("Mean Squared Error");
-    plt::title("Iris training");
-    plt::save("plots/iris_training.pdf");
+    // plt::plot(epochs, epoch_data);
+    // plt::xlabel("Number of Epochs");
+    // plt::ylabel("Mean Squared Error");
+    // plt::title("Iris training");
+    // plt::save("plots/iris_training.pdf");
 
-    n.save_weights("data/iris_weights.txt");
+    // n.save_weights("data/iris_weights.txt");
     return 0;
 }

@@ -60,9 +60,9 @@ int main()
     }
 
     vector<scalar> testing_accuracy;
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 150, 32, X_test, Y_test, testing_accuracy);
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 10, 32, X_test, Y_test, testing_accuracy);
 
-    vector<int> epochs(150);
+    vector<int> epochs(10);
     iota(epochs.begin(), epochs.end(), 1);
 
     plt::plot(epochs, testing_accuracy);

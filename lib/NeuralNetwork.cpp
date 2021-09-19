@@ -31,6 +31,8 @@ vector<scalar> NeuralNetwork::train(
     vector<scalar> epoch_data;
     size_t num_samples = input_data.size();
 
+    if (num_samples == 0) return {};
+
     vector<int> indices(num_samples);
     iota(indices.begin(), indices.end(), 0);
 
@@ -177,19 +179,20 @@ void NeuralNetwork::save_weights(string out_filename)
 
 void NeuralNetwork::load_weights(string in_filename)
 {
-    ifstream in_file(in_filename);
-    for (string line; getline(in_file, line); ) {
-        cout << line << endl;
-        istringstream iss(line);
-        vector<string> words;
-        do
-        {
-            string subs;
-            iss >> word;
-            words.push_back(word);
-        } while (iss);
+    cout << in_filename;
+    // ifstream in_file(in_filename);
+    // for (string line; getline(in_file, line); ) {
+    //     cout << line << endl;
+    //     istringstream iss(line);
+    //     vector<string> words;
+    //     do
+    //     {
+    //         string subs;
+    //         iss >> word;
+    //         words.push_back(word);
+    //     } while (iss);
         
-        if (!words) return;
+    //     if (!words) return;
 
         // if (words[0] == "a") {
 
@@ -220,5 +223,4 @@ void NeuralNetwork::load_weights(string in_filename)
         // }
 
         return;
-    }
 }
