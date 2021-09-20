@@ -144,31 +144,31 @@ void NeuralNetwork::save_weights(string out_filename)
                 case 'c':
                 {
                     out << layer_type << " " 
-                        << layers[i]->width << " " 
-                        << layers[i]->height << " " 
-                        << layers[i]->num_channels << " " 
-                        << layers[i]->pooling_size << "\n"; 
+                        << dynamic_cast<MaxPoolingLayer*>(layers[i].get())->get_width() << " " 
+                        << dynamic_cast<MaxPoolingLayer*>(layers[i].get())->get_height() << " " 
+                        << dynamic_cast<MaxPoolingLayer*>(layers[i].get())->get_num_channels() << " " 
+                        << dynamic_cast<MaxPoolingLayer*>(layers[i].get())->get_pooling_size() << "\n"; 
                     break;
                 }
                 // AveragePoolingLayer
                 case 'd':
                 {
                     out << layer_type << " " 
-                        << layers[i]->width << " " 
-                        << layers[i]->height << " " 
-                        << layers[i]->num_channels << " " 
-                        << layers[i]->pooling_size << "\n"; 
+                        << dynamic_cast<AveragePoolingLayer*>(layers[i].get())->get_width() << " " 
+                        << dynamic_cast<AveragePoolingLayer*>(layers[i].get())->get_height() << " " 
+                        << dynamic_cast<AveragePoolingLayer*>(layers[i].get())->get_num_channels() << " " 
+                        << dynamic_cast<AveragePoolingLayer*>(layers[i].get())->get_pooling_size() << "\n"; 
                     break;
                 }
                 // ConvolutionLayer
                 case 'e':
                 {
                     out << layer_type << " " 
-                        << layers[i]->width << " " 
-                        << layers[i]->height << " " 
-                        << layers[i]->num_channels << " " 
-                        << layers[i]->padding_size << " " 
-                        <<  layers[i]->kernel_size << "\n"; 
+                        << dynamic_cast<ConvolutionLayer*>(layers[i].get())->get_width() << " " 
+                        << dynamic_cast<ConvolutionLayer*>(layers[i].get())->get_height() << " " 
+                        << dynamic_cast<ConvolutionLayer*>(layers[i].get())->get_num_channels() << " " 
+                        << dynamic_cast<ConvolutionLayer*>(layers[i].get())->get_padding_size() << " " 
+                        << dynamic_cast<ConvolutionLayer*>(layers[i].get())->get_kernel_size() << "\n"; 
 
                     vector<vector<vector<scalar>>> kers = (dynamic_cast<ConvolutionLayer*> (layers[i].get()))->get_kernels();
                     out << "kernels\n";
@@ -197,13 +197,14 @@ void NeuralNetwork::load_weights(string in_filename)
     char layer_type;
     uint channel_idx = -1;
     uint weight_row = 0;
+    bool bias = false;
 
     for (string line; getline(in_file, line); ) {
         istringstream iss(line);
         vector<string> words;
         do
         {
-            string subs;
+            string word;
             iss >> word;
             words.push_back(word);
         } while (iss);
@@ -220,7 +221,7 @@ void NeuralNetwork::load_weights(string in_filename)
 
         if (words[0] == "a") {
             layer_type = 'a';
-            add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(words[1], words[2], learning_rate)));
+            add(make_shared<FullyConnectedLayer>(FullyConnectedLayer((uint) stoi(words[1]), (uint) stoi(words[2]), learning_rate)));
         }
         else if (words[0] == "b") {
             continue;
@@ -231,54 +232,71 @@ void NeuralNetwork::load_weights(string in_filename)
         else if (words[0] == "x") {
             layer_type = 'x';
 
-            add(make_shared<TanhLayer>(TanhLayer(words[1])));
+            add(make_shared<TanhLayer>(TanhLayer((uint) stoi(words[1]))));
         }
         else if (words[0] == "y") {
             layer_type = 'y';
-            add(make_shared<ReLULayer>(ReLULayer(words[1])));
+            add(make_shared<ReLULayer>(ReLULayer((uint) stoi(words[1]))));
         }
         else if (words[0] == "c") {
             layer_type = 'c';
-            add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(words[1], words[2], words[3], words[4])));
+            add(make_shared<MaxPoolingLayer>(MaxPoolingLayer((uint) stoi(words[1]), (uint) stoi(words[2]), (uint) stoi(words[3]), (uint) stoi(words[4]))));
         }
         else if (words[0] == "d") {
             layer_type = 'd';
-            add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(words[1], words[2], words[3], words[4])));
+            add(make_shared<AveragePoolingLayer>(AveragePoolingLayer((uint) stoi(words[1]), (uint) stoi(words[2]), (uint) stoi(words[3]), (uint) stoi(words[4]))));
         }
         else if (words[0] == "e") {
             layer_type = 'e';
-            add(make_shared<ConvolutionLayer>(ConvolutionLayer(words[1], words[2], words[3], words[4])));
+            add(make_shared<ConvolutionLayer>(ConvolutionLayer((uint) stoi(words[1]), (uint) stoi(words[2]), (uint) stoi(words[3]), (uint) stoi(words[4]), (uint) stoi(words[5]), learning_rate)));
         }
-        // Words to make file human readable, but not needed to read in
-        else if (words[0] == "kernels" ||
-                 words[0] == "weights" ||
-                 words[0] == "biases" ||) {
+        // makes file human readable, but not needed to read in
+        else if (words[0] == "kernels") {
             continue;
+        }
+        else if (words[0] == "biases") {
+            bias = true;
+            weight_row = 0;
+        }
+        else if (words[0] == "weights") {
+            bias = false;
         }
         else if (words[0] == "channel") {
             channel_idx++;
         }
-        
         // numerical data
         else {
             switch (layer_type)
             {
-            case 'a':
-            // TODO
+            case 'a': {
+                if (!bias) {
+                    for (size_t i = 0; i < words.size() - 1; i++) {
+                        dynamic_cast<FullyConnectedLayer*>(layers[layers.size() - 1].get())->set_weight_at(weight_row, i, stod(words[i]));
+                    }
+                    weight_row++;
+                }
+                else {
+                    for (size_t i = 0; i < words.size() - 1; i++) {
+                        dynamic_cast<FullyConnectedLayer*>(layers[layers.size() - 1].get())->set_bias_at(i, stod(words[i]));
+                    }
+                }
                 break;
+            }
             case 'b':
                 break;
+            
             case 'c':
                 break;
             case 'd':
                 break;
-            case 'e':
-                uint ker_size = uint(sqrt(words.size()));
-                for (uint i = 0; i < words.size(); i++) {
-                    layers[layers.size() - 1]->set_kernel_at(channel_idx, i % ker_size, i / ker_size, words[i]);
+            case 'e': {
+                uint ker_size(sqrt(words.size() - 1));
+                for (uint i = 0; i < words.size() - 1; i++) {
+                    dynamic_cast<ConvolutionLayer*>(layers[layers.size() - 1].get())->set_kernel_at(channel_idx, i % ker_size, i / ker_size, stod(words[i]));
                 }
                 channel_idx = -1;
                 break;
+            }
             case 'x':
                 break;
             case 'y':
@@ -287,6 +305,7 @@ void NeuralNetwork::load_weights(string in_filename)
                 break;
             }
         }
+    }
 
         return;
 }

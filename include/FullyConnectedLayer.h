@@ -53,6 +53,9 @@ public:
 
     inline vector<vector<scalar>> get_weights() {return weights;}
     inline vector<scalar> get_biases() {return biases;}
+    
+    void set_weight_at(uint i, uint j, scalar val);
+    void set_bias_at(uint i, scalar val);
 private:
     void initialize_weights();
 

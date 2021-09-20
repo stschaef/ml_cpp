@@ -32,3 +32,7 @@ vector<scalar> ActivationFunctionLayer::backward(
 
     return input_error;
 }                          
+
+ReLULayer::ReLULayer(uint n) : ActivationFunctionLayer(n, relu, relu_der) {}
+
+TanhLayer::TanhLayer(uint n) : ActivationFunctionLayer(n, hyp_tan, hyp_tan_der) {}

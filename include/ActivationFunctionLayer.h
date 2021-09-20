@@ -19,14 +19,14 @@ private:
 };
 
 class TanhLayer : public ActivationFunctionLayer {
-    inline TanhLayer(uint n) 
-      : ActivationFunctionLayer(n, hyp_tan, hyp_tan_der) {}
-}
+public:
+    TanhLayer(uint n);
+};
 
 class ReLULayer : public ActivationFunctionLayer {
-    inline ReLULayer(uint n) 
-      : ActivationFunctionLayer(n, relu, relu_der) {}
-}
+public:
+    ReLULayer(uint n);
+};
 
 // ___________Activation Functions___________
 inline scalar hyp_tan(scalar x)

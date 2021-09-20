@@ -13,6 +13,8 @@ public:
     
     virtual vector<scalar> forward(vector<scalar> input) = 0;
     virtual vector<scalar> backward(vector<scalar> output_error) = 0;
+
+    inline uint get_pooling_size() {return pooling_size;}
 protected:
     uint pooling_size;
 };

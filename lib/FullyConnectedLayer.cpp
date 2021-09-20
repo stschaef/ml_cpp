@@ -96,3 +96,13 @@ vector<scalar> FullyConnectedLayer::backward(
     
     return input_error;
 }
+
+void FullyConnectedLayer::set_weight_at(uint i, uint j, scalar val)
+{
+    weights[i][j] = val;
+}
+
+void FullyConnectedLayer::set_bias_at(uint i, scalar val)
+{
+    biases[i] = val;
+}

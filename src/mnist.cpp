@@ -60,20 +60,20 @@ int main()
     }
 
     vector<scalar> testing_accuracy;
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 10, 32, X_test, Y_test, testing_accuracy);
+    vector<scalar> epoch_data = n.train(X_train, Y_train, 2, 32, X_test, Y_test, testing_accuracy);
 
-    vector<int> epochs(10);
+    vector<int> epochs(2);
     iota(epochs.begin(), epochs.end(), 1);
 
-    plt::plot(epochs, testing_accuracy);
-    plt::xlabel("Number of Epochs");
-    plt::ylabel("Test Set Accuracy/MSE");
+    // plt::plot(epochs, testing_accuracy);
+    // plt::xlabel("Number of Epochs");
+    // plt::ylabel("Test Set Accuracy/MSE");
 
-    plt::plot(epochs, epoch_data);
+    // plt::plot(epochs, epoch_data);
     
-    plt::title("MNIST Handwriting: Test Accuracy and Training Loss (MSE)");
-    // plt::show();
-    plt::save("plots/mnist_training.pdf");
+    // plt::title("MNIST Handwriting: Test Accuracy and Training Loss (MSE)");
+    // // plt::show();
+    // plt::save("plots/mnist_training.pdf");
 
     n.save_weights("data/mnist_weights.txt");
     return 0;

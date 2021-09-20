@@ -27,8 +27,15 @@ public:
     vector<scalar> forward(vector<scalar> input);
     vector<scalar> backward(vector<scalar> output_error);
 
-    inline vector<vector<vector<scalar>>> get_kernels() {return kernels;}
     void set_kernel_at(uint channel_num, uint i, uint j, scalar val);
+
+    inline vector<vector<vector<scalar>>> get_kernels() {return kernels;}
+    inline uint get_height() {return height;}
+    inline uint get_width() {return width;}
+    inline uint get_num_channels() {return num_channels;}
+    inline uint get_padding_size() {return padding_size;}
+    inline uint get_kernel_size() {return kernel_size;}
+
 protected:
     uint height;
     uint width;
