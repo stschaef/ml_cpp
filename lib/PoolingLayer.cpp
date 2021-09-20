@@ -3,12 +3,12 @@
 // ___________PoolingLayer Implementations___________
 
 PoolingLayer::PoolingLayer(
-    uint height,
     uint width,
+    uint height,
     uint num_channels,
     uint pooling_size)
-    : ConvolutionLayer(height,
-                       width,
+    : ConvolutionLayer(width,
+                       height,
                        num_channels,
                        0,
                        0,
@@ -21,8 +21,8 @@ MaxPoolingLayer::MaxPoolingLayer(
     uint height,
     uint num_channels,
     uint pooling_size)
-    : PoolingLayer(height,
-                   width,
+    : PoolingLayer(width,
+                   height,
                    num_channels,
                    pooling_size)
 {

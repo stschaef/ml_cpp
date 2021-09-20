@@ -125,3 +125,8 @@ void ConvolutionLayer::initialize_kernels()
         }
     }
 }
+
+void ConvolutionLayer::set_kernel_at(uint channel_num, uint i, uint j, scalar val)
+{
+    kernels[channel_num][i][j] = val;
+}

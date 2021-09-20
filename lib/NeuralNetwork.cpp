@@ -138,25 +138,37 @@ void NeuralNetwork::save_weights(string out_filename)
                 case 'b':
                 {
                     out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
-
                     break;
                 }
                 // MaxPoolingLayer
                 case 'c':
                 {
-                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+                    out << layer_type << " " 
+                        << layers[i]->width << " " 
+                        << layers[i]->height << " " 
+                        << layers[i]->num_channels << " " 
+                        << layers[i]->pooling_size << "\n"; 
                     break;
                 }
                 // AveragePoolingLayer
                 case 'd':
                 {
-                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+                    out << layer_type << " " 
+                        << layers[i]->width << " " 
+                        << layers[i]->height << " " 
+                        << layers[i]->num_channels << " " 
+                        << layers[i]->pooling_size << "\n"; 
                     break;
                 }
                 // ConvolutionLayer
                 case 'e':
                 {
-                    out << layer_type << " " << layers[i]->get_n_inputs() << " " << layers[i]->get_n_outputs() << "\n";
+                    out << layer_type << " " 
+                        << layers[i]->width << " " 
+                        << layers[i]->height << " " 
+                        << layers[i]->num_channels << " " 
+                        << layers[i]->padding_size << " " 
+                        <<  layers[i]->kernel_size << "\n"; 
 
                     vector<vector<vector<scalar>>> kers = (dynamic_cast<ConvolutionLayer*> (layers[i].get()))->get_kernels();
                     out << "kernels\n";
@@ -180,47 +192,101 @@ void NeuralNetwork::save_weights(string out_filename)
 void NeuralNetwork::load_weights(string in_filename)
 {
     cout << in_filename;
-    // ifstream in_file(in_filename);
-    // for (string line; getline(in_file, line); ) {
-    //     cout << line << endl;
-    //     istringstream iss(line);
-    //     vector<string> words;
-    //     do
-    //     {
-    //         string subs;
-    //         iss >> word;
-    //         words.push_back(word);
-    //     } while (iss);
+    ifstream in_file(in_filename);
+
+    char layer_type;
+    uint channel_idx = -1;
+    uint weight_row = 0;
+
+    for (string line; getline(in_file, line); ) {
+        istringstream iss(line);
+        vector<string> words;
+        do
+        {
+            string subs;
+            iss >> word;
+            words.push_back(word);
+        } while (iss);
+    
+        if (words.empty()) return;
+
+        // FullyConnectedLayer      : 'a';
+        // ActivationFunctionLayer  : 'b';
+        // MaxPoolingLayer          : 'c';
+        // AveragePoolingLayer      : 'd';
+        // ConvolutionLayer         : 'e';
+        // TanhLayer                : 'x';
+        // ReLULayer                : 'y';
+
+        if (words[0] == "a") {
+            layer_type = 'a';
+            add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(words[1], words[2], learning_rate)));
+        }
+        else if (words[0] == "b") {
+            continue;
+            // 'b' shouldnt happen
+            // we use TanhLayer and ReLULayer in place of ActivationFunctionLayer when saving
+            // Saving custom activation functions not happening right now
+        }
+        else if (words[0] == "x") {
+            layer_type = 'x';
+
+            add(make_shared<TanhLayer>(TanhLayer(words[1])));
+        }
+        else if (words[0] == "y") {
+            layer_type = 'y';
+            add(make_shared<ReLULayer>(ReLULayer(words[1])));
+        }
+        else if (words[0] == "c") {
+            layer_type = 'c';
+            add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(words[1], words[2], words[3], words[4])));
+        }
+        else if (words[0] == "d") {
+            layer_type = 'd';
+            add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(words[1], words[2], words[3], words[4])));
+        }
+        else if (words[0] == "e") {
+            layer_type = 'e';
+            add(make_shared<ConvolutionLayer>(ConvolutionLayer(words[1], words[2], words[3], words[4])));
+        }
+        // Words to make file human readable, but not needed to read in
+        else if (words[0] == "kernels" ||
+                 words[0] == "weights" ||
+                 words[0] == "biases" ||) {
+            continue;
+        }
+        else if (words[0] == "channel") {
+            channel_idx++;
+        }
         
-    //     if (!words) return;
-
-        // if (words[0] == "a") {
-
-        // }
-        // else if (words[0] == "b") {
-
-        // }
-        // else if (words[0] == "c") {
-            
-        // }
-        // else if (words[0] == "d") {
-            
-        // }
-        // else if (words[0] == "e") {
-            
-        // }
-        // else if (words[0] == "kernels") {
-            
-        // }
-        // else if (words[0] == "channel") {
-            
-        // }
-        // else if (words[0] == "weights") {
-            
-        // }
-        // else if (words[0] == "biases") {
-            
-        // }
+        // numerical data
+        else {
+            switch (layer_type)
+            {
+            case 'a':
+            // TODO
+                break;
+            case 'b':
+                break;
+            case 'c':
+                break;
+            case 'd':
+                break;
+            case 'e':
+                uint ker_size = uint(sqrt(words.size()));
+                for (uint i = 0; i < words.size(); i++) {
+                    layers[layers.size() - 1]->set_kernel_at(channel_idx, i % ker_size, i / ker_size, words[i]);
+                }
+                channel_idx = -1;
+                break;
+            case 'x':
+                break;
+            case 'y':
+                break;
+            default:
+                break;
+            }
+        }
 
         return;
 }

@@ -18,6 +18,16 @@ private:
     function<scalar(scalar)> activation_der;
 };
 
+class TanhLayer : public ActivationFunctionLayer {
+    inline TanhLayer(uint n) 
+      : ActivationFunctionLayer(n, hyp_tan, hyp_tan_der) {}
+}
+
+class ReLULayer : public ActivationFunctionLayer {
+    inline ReLULayer(uint n) 
+      : ActivationFunctionLayer(n, relu, relu_der) {}
+}
+
 // ___________Activation Functions___________
 inline scalar hyp_tan(scalar x)
 {

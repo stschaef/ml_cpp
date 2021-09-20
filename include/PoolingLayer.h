@@ -6,8 +6,8 @@
 
 class PoolingLayer : public ConvolutionLayer {
 public:
-    PoolingLayer(uint height,
-                 uint width,
+    PoolingLayer(uint width,
+                 uint height,
                  uint num_channels,
                  uint pooling_size);
     
@@ -19,8 +19,8 @@ protected:
 
 class MaxPoolingLayer : public PoolingLayer {
 public:
-    MaxPoolingLayer(uint height,
-                    uint width,
+    MaxPoolingLayer(uint width,
+                    uint height,
                     uint num_channels,
                     uint pooling_size);
     

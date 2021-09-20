@@ -28,6 +28,7 @@ public:
     vector<scalar> backward(vector<scalar> output_error);
 
     inline vector<vector<vector<scalar>>> get_kernels() {return kernels;}
+    void set_kernel_at(uint channel_num, uint i, uint j, scalar val);
 protected:
     uint height;
     uint width;
