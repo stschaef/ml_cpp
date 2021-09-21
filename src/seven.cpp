@@ -20,7 +20,7 @@ int main()
     // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
     // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
 
-    n.load_weights("/home/stschaef/ml_cpp/data/mnist_weights.txt");
+    n.load_weights("/home/stschaef/ml_cpp/mnist_weights_91.txt");
 
     vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
 

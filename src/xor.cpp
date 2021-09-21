@@ -10,12 +10,12 @@ int main()
 {
   scalar lr = 0.1;
 
-  cout << "Hello world" << endl;
   NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2, 3, lr)));
-  n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(3, hyp_tan, hyp_tan_der)));
-  n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3, 1, lr)));
-  n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(1, hyp_tan, hyp_tan_der)));
+
+  // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2, 3, lr)));
+  // n.add(make_shared<TanhLayer>(TanhLayer(3)));
+  // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3, 1, lr)));
+  // n.add(make_shared<TanhLayer>(TanhLayer(1)));
 
   vector<vector<scalar>> X;
   X.push_back(vector<scalar>({0 , 0}));
@@ -29,23 +29,21 @@ int main()
   Y.push_back(vector<scalar>({1}));
   Y.push_back(vector<scalar>({0}));
 
-  vector<scalar> epoch_data = n.train(X, Y, 1000, 1, X, Y);
+  n.load_weights("/home/stschaef/ml_cpp/data/xor_weights.txt");
 
-  vector<vector<scalar>> output;
-  for (size_t i = 0; i < X.size(); i++) {
-      output.push_back(n.predict(X[i]));
-  }
+  vector<scalar> testing_acc;
+  vector<scalar> epoch_data = n.train(X, Y, 10, 1, X, Y, testing_acc);
 
-  vector<int> epochs(1000);
+  vector<int> epochs(10);
   iota(epochs.begin(), epochs.end(), 1);
 
-  plt::plot(epochs, epoch_data);
-  plt::xlabel("Number of Iterations");
-  plt::ylabel("Mean Squared Error");
-  plt::title("XOR training");
-  plt::save("plots/x_or_training.pdf");
-  plt::show();
+  // plt::plot(epochs, epoch_data);
+  // plt::xlabel("Number of Iterations");
+  // plt::ylabel("Mean Squared Error");
+  // plt::title("XOR training");
+  // plt::save("plots/x_or_training.pdf");
+  // plt::show();
 
-  n.save_weights("data/xor_weights.txt");
+  // n.save_weights("/home/stschaef/ml_cpp/data/xor_weights.txt");
   return 0;
 }

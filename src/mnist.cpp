@@ -12,19 +12,18 @@ int main()
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 4, 0, 3, lr))); //output size 28 - 3 + 1 = 26
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 4, 2)));
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(13, 13, 4, 0, 5, lr))); //13 - 5 + 1 = 9
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(9, 9, 4, 3)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3 * 3 * 4, 32, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
-
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
-    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 32, lr)));
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 4, 0, 3, lr))); //output size 28 - 3 + 1 = 26
+    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 4, 2)));
+    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(13, 13, 4, 0, 5, lr))); //13 - 5 + 1 = 9
+    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(9, 9, 4, 3)));
+    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3 * 3 * 4, 32, lr)));
     // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
     // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
+
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
+    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 10, lr)));
+    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(10, hyp_tan, hyp_tan_der)));
 
     vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
 

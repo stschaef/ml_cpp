@@ -183,6 +183,16 @@ void NeuralNetwork::save_weights(string out_filename)
                     }
                     break;
                 }
+                case 'x':
+                {
+                    out << layer_type << " " << layers[i]->get_n_inputs() << "\n";
+                    break;
+                }
+                case 'y':
+                {
+                    out << layer_type << " " << layers[i]->get_n_inputs() << "\n";
+                    break;
+                }
             }
         }
     }
@@ -250,8 +260,8 @@ void NeuralNetwork::load_weights(string in_filename)
             layer_type = 'e';
             add(make_shared<ConvolutionLayer>(ConvolutionLayer((uint) stoi(words[1]), (uint) stoi(words[2]), (uint) stoi(words[3]), (uint) stoi(words[4]), (uint) stoi(words[5]), learning_rate)));
         }
-        // makes file human readable, but not needed to read in
         else if (words[0] == "kernels") {
+            channel_idx = -1;
             continue;
         }
         else if (words[0] == "biases") {
@@ -292,9 +302,8 @@ void NeuralNetwork::load_weights(string in_filename)
             case 'e': {
                 uint ker_size(sqrt(words.size() - 1));
                 for (uint i = 0; i < words.size() - 1; i++) {
-                    dynamic_cast<ConvolutionLayer*>(layers[layers.size() - 1].get())->set_kernel_at(channel_idx, i % ker_size, i / ker_size, stod(words[i]));
+                    dynamic_cast<ConvolutionLayer*>(layers[layers.size() - 1].get())->set_kernel_at(channel_idx, i / ker_size, i % ker_size, stod(words[i]));
                 }
-                channel_idx = -1;
                 break;
             }
             case 'x':
