@@ -13,19 +13,20 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    uint total_epochs = 100;
+    uint total_epochs = 40;
     uint batch_size = 8;
-    scalar lr = 0.1;
+    uint num_channels = 5;
+    scalar lr = 0.5;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 5, 0, 3, lr))); //output size 28 - 3 + 1 = 26, in 6 channels
-    n.add(make_shared<ReLULayer>(ReLULayer(26 * 26 * 5))); 
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(26, 26, 5, 0, 5, lr))); //output size 26 - 5 + 1 = 22
-    n.add(make_shared<TanhLayer>(TanhLayer(22 * 22 * 5)));
-    n.add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(22, 22, 5, 2)));
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(11, 11, 5, 0, 5, lr))); //11 - 5 + 1 =7
-    n.add(make_shared<ReLULayer>(ReLULayer(7 * 7 * 5))); 
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(7 * 7 * 5, 64 , lr)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, num_channels, 0, 3, lr))); //output size 28 - 3 + 1 = 26, in 6 channels
+    n.add(make_shared<ReLULayer>(ReLULayer(26 * 26 * num_channels))); 
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(26, 26, num_channels, 0, 5, lr))); //output size 26 - 5 + 1 = 22
+    n.add(make_shared<TanhLayer>(TanhLayer(22 * 22 * num_channels)));
+    n.add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(22, 22, num_channels, 2)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(11, 11, num_channels, 0, 5, lr))); //11 - 5 + 1 =7
+    n.add(make_shared<ReLULayer>(ReLULayer(7 * 7 * num_channels))); 
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(7 * 7 * num_channels, 64 , lr)));
     n.add(make_shared<TanhLayer>(TanhLayer(64)));
     n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 10, lr)));
 
@@ -40,12 +41,12 @@ int main()
         label[i] = 1;
 
         for (auto p : train_paths) {
-            X_train_before.push_back(flatten_mnist_image(p, 4));
+            X_train_before.push_back(flatten_mnist_image(p, num_channels));
             Y_train_before.push_back(label);
         }
 
         for (auto p : test_paths) {
-            X_test.push_back(flatten_mnist_image(p, 4));
+            X_test.push_back(flatten_mnist_image(p, num_channels));
             Y_test.push_back(label);
         }
     }

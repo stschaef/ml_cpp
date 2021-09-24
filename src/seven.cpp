@@ -15,21 +15,13 @@ int main()
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
     n.load_weights("/home/stschaef/ml_cpp/mnist_weights_97.txt");
 
-    vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
+    auto a = flatten_mnist_image("/home/stschaef/ml_cpp/data/seven.jpg", 5);
 
-    for (int i = 0; i < 10; i++) {
-        vector<string> test_paths = mnist_test(i); 
+    auto b = n.predict(a);
 
-        // make categorical labels
-        vector<scalar> label(10, 0);
-        label[i] = 1;
-        for (auto p : test_paths) {
-            X_test.push_back(flatten_mnist_image(p, 4));
-            Y_test.push_back(label);
-        }
+    for (auto c : b) {
+        cout << c << '\n';
     }
-
-    cout << n.test(X_test, Y_test) << endl;
     
     return 0;
 }
