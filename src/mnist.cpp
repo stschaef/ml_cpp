@@ -7,23 +7,27 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
+// TODO make image data class for data augmentation
+// implement affine transformations for these, scale, rotate, translate
+// then apply each with small parameters
+
 int main()
 {   
+    uint total_epochs = 100;
+    uint batch_size = 8;
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 4, 0, 3, lr))); //output size 28 - 3 + 1 = 26
-    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 4, 2)));
-    // n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(13, 13, 4, 0, 5, lr))); //13 - 5 + 1 = 9
-    // n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(9, 9, 4, 3)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(3 * 3 * 4, 32, lr)));
-    // n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(32, hyp_tan, hyp_tan_der)));
-    // n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(32, 10, lr)));
-
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 1, 0, 3, lr))); //output size 28 - 2 + 1 = 27
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(26, 26, 1, 2)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(169, 10, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(10, hyp_tan, hyp_tan_der)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(28, 28, 5, 0, 3, lr))); //output size 28 - 3 + 1 = 26, in 6 channels
+    n.add(make_shared<ReLULayer>(ReLULayer(26 * 26 * 5))); 
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(26, 26, 5, 0, 5, lr))); //output size 26 - 5 + 1 = 22
+    n.add(make_shared<TanhLayer>(TanhLayer(22 * 22 * 5)));
+    n.add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(22, 22, 5, 2)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(11, 11, 5, 0, 5, lr))); //11 - 5 + 1 =7
+    n.add(make_shared<ReLULayer>(ReLULayer(7 * 7 * 5))); 
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(7 * 7 * 5, 64 , lr)));
+    n.add(make_shared<TanhLayer>(TanhLayer(64)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 10, lr)));
 
     vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
 
@@ -59,21 +63,28 @@ int main()
     }
 
     vector<scalar> testing_accuracy;
-    vector<scalar> epoch_data = n.train(X_train, Y_train, 2, 32, X_test, Y_test, testing_accuracy);
-
-    vector<int> epochs(2);
-    iota(epochs.begin(), epochs.end(), 1);
-
-    // plt::plot(epochs, testing_accuracy);
-    // plt::xlabel("Number of Epochs");
-    // plt::ylabel("Test Set Accuracy/MSE");
-
-    // plt::plot(epochs, epoch_data);
-    
-    // plt::title("MNIST Handwriting: Test Accuracy and Training Loss (MSE)");
-    // // plt::show();
-    // plt::save("plots/mnist_training.pdf");
+    vector<scalar> epoch_data = n.train(X_train,
+                                        Y_train,
+                                        total_epochs,
+                                        batch_size,
+                                        X_test,
+                                        Y_test,
+                                        testing_accuracy);
 
     n.save_weights("data/mnist_weights.txt");
+
+    vector<int> epochs(total_epochs);
+    iota(epochs.begin(), epochs.end(), 1);
+
+    plt::plot(epochs, testing_accuracy);
+    plt::xlabel("Number of Epochs");
+    plt::ylabel("Test Set Accuracy/MSE");
+
+    plt::plot(epochs, epoch_data);
+    
+    plt::title("MNIST Handwriting: Test Accuracy and Training Loss (MSE)");
+    // plt::show();
+    plt::save("plots/mnist_training.pdf");
+
     return 0;
 }
