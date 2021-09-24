@@ -7,12 +7,13 @@
 using namespace std;
 namespace plt = matplotlibcpp;
 
+// Test on my own handwritten 7
 int main()
 {   
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.load_weights("/home/stschaef/ml_cpp/mnist_weights_91.txt");
+    n.load_weights("/home/stschaef/ml_cpp/mnist_weights_97.txt");
 
     vector<vector<scalar>> X_train_before, Y_train_before, X_test, Y_test, X_train, Y_train;
 
