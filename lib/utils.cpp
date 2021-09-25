@@ -11,9 +11,9 @@ vector<scalar> flatten_animals_image(string image_path)
     for (int i = 0; i < image.rows; i++) {
         cv::Vec3b* pixel = image.ptr<cv::Vec3b>(i);
         for (int j = 0; j < image.cols; j++) {
-            reds.push_back(scalar(pixel[j][2]));
-            blues.push_back(scalar(pixel[j][1]));
-            greens.push_back(scalar(pixel[j][0]));
+            reds.push_back(scalar(pixel[j][2]) / 255.0);
+            blues.push_back(scalar(pixel[j][1]) / 255.0);
+            greens.push_back(scalar(pixel[j][0]) / 255.0);
         }
     }
 
@@ -62,4 +62,57 @@ vector<string> mnist_train(int digit)
     cv::glob(test_folder, filenames, true);
 
     return filenames;
+}
+
+vector<string> animal_images()
+{
+    string test_folder = "/home/stschaef/ml_cpp/data/animals_resized";
+    vector<cv::String> filenames;
+    cv::glob(test_folder, filenames, true);
+
+    return filenames;
+}
+
+vector<string> split(const string &s, char delim) {
+  stringstream ss(s);
+  string item;
+  vector<string> elems;
+  while (getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+int animals_category_to_index(string s) {
+    // Used for encoding categorical variables
+    // ex) butterfly corresponds to label [1, 0, 0, 0, ...]
+    //     the 1 is in index animals_category_to_index("butterfly")
+    if (s == "butterfly") {
+        return 0;
+    }
+    if (s == "cat") {
+        return 1;
+    }
+    if (s == "chicken") {
+        return 2;
+    }
+    if (s == "cow") {
+        return 3;
+    }
+    if (s == "dog") {
+        return 4;
+    }
+    if (s == "elephant") {
+        return 5;
+    }
+    if (s == "horse") {
+        return 6;
+    }
+    if (s == "sheep") {
+        return 7;
+    }
+    if (s == "squirrel") {
+        return 8;
+    }
+    return -1;
 }

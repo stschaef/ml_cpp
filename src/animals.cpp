@@ -6,8 +6,6 @@
 */
 #include <iostream>
 #include <NeuralNetwork.h>
-#include <opencv4/opencv2/opencv.hpp>  
-#include <csignal>
 #include "matplotlibcpp.h"
 #include "utils.h"
 
@@ -16,73 +14,73 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    vector<scalar> image_vector = flatten_animals_image("/home/stschaef/ml_cpp/data/animals_resized/cat/1.jpeg");
-
+    uint total_epochs = 2;
+    uint batch_size = 2048;
+    uint num_channels = 3;
     scalar lr = 0.1;
 
-    // TODO: fix this
-    // This is laughably too large, and the layers are overflowing because of it
-    // even without the overflow, it is questionableif i can run this
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(300, 200, 3, 0, 5, lr)));
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer(300 - 5 + 1, 200 - 5 + 1, 3, 2)));
-    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer((300 -5 + 1)/2, (200 -5 + 1)/2, 3, 0, 6, lr)));
-    n.add(make_shared<MaxPoolingLayer>(MaxPoolingLayer((300 -5 + 1)/2 - 6 + 1, (200 - 5 + 1)/2 - 6 + 1, 3, 2)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(143 * 93, 2000, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(2000, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(2000, 90, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(90, hyp_tan, hyp_tan_der)));
-    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(90, 9, lr)));
-    n.add(make_shared<ActivationFunctionLayer>(ActivationFunctionLayer(9, hyp_tan, hyp_tan_der)));
-
-    vector<scalar> a = n.predict(image_vector);
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(300, 200, num_channels, 0, 11, lr)));
+    n.add(make_shared<ReLULayer>(ReLULayer(290 * 190 * num_channels))); 
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(291, 191, num_channels, 0, 16, lr)));
+    n.add(make_shared<TanhLayer>(TanhLayer(275 * 175 * num_channels)));
+    n.add(make_shared<AveragePoolingLayer>(AveragePoolingLayer(275, 175, num_channels, 2)));
+    n.add(make_shared<ConvolutionLayer>(ConvolutionLayer(55, 35, num_channels, 0, 26, lr)));
+    n.add(make_shared<ReLULayer>(ReLULayer(30 * 10 * num_channels))); 
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(30 * 10 * num_channels, 128 , lr)));
+    n.add(make_shared<TanhLayer>(TanhLayer(128)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(128, 64 , lr)));
+    n.add(make_shared<TanhLayer>(TanhLayer(64)));
+    n.add(make_shared<FullyConnectedLayer>(FullyConnectedLayer(64, 9, lr)));
     
-    // vector<vector<scalar>> X;
-    // vector<vector<scalar>> Y;
+    vector<vector<scalar>> X_test, Y_test, X_train, Y_train;
 
-    // vector<int> indices(X.size());
-    // iota(indices.begin(), indices.end(), 0);
-    // vector<int> train, test;
-    // vector<vector<scalar>> X_train, X_test, Y_train, Y_test;
 
-    // for (int i = 0; i < int(.8 * 150); i++) {
-    //     X_train.push_back(X[indices[i]]);
-    //     Y_train.push_back(Y[indices[i]]);
-    // }
-    // for (int i = int(.8 * 150); i < 150; i++) {
-    //     X_test.push_back(X[indices[i]]);
-    //     Y_test.push_back(Y[indices[i]]);
-    // }
+    vector<string> animal_filepaths = animal_images();
+    random_shuffle(animal_filepaths.begin(), animal_filepaths.end());
+    
+    for (int i = 0; i < int(animal_filepaths.size() * .7) ; i++) {
+        vector<scalar> label(9, 0.0);
+        string category = split(animal_filepaths[i], '/')[6];
+        label[animals_category_to_index(category)] = 1.0;
 
-    // vector<scalar> epoch_data = n.train(X_train, Y_train, 1000, 8);
+        X_train.push_back(flatten_animals_image(animal_filepaths[i]));
+        Y_train.push_back(label);
+    }
 
-    // vector<vector<scalar>> output;
-    // for (size_t i = 0; i < X.size(); i++) {
-    //     output.push_back(n.predict(X[i]));
-    // }
-    // int num_right = 0;
-    // for (size_t i = 0; i < X_test.size(); i++) {
-    //     vector<scalar> output = n.predict(X_test[i]);
-    //     scalar biggest = -200;
-    //     int biggest_index = -1;
-    //     for (size_t j = 0; j < output.size(); j++) {
-    //         if (output[j] > biggest) biggest_index = j;
-    //     }
-    //     if (Y_test[i][biggest_index] == 1) num_right++;
-    // }
+    for (int i = int(animal_filepaths.size() * .7); i < int(animal_filepaths.size()) ; i++) {
+        vector<scalar> label(9, 0);
+        string category = split(animal_filepaths[i], '/')[6];
+        label[animals_category_to_index(category)] = 1;
 
-    // cout << "Accuracy: " << scalar(num_right) / X_test.size() << '\n';
+        X_test.push_back(flatten_animals_image(animal_filepaths[i]));
+        Y_test.push_back(label);
+    }
+    
+    vector<scalar> testing_accuracy;
+    vector<scalar> epoch_data = n.train(X_train,
+                                        Y_train,
+                                        total_epochs,
+                                        batch_size,
+                                        X_test,
+                                        Y_test,
+                                        testing_accuracy);
 
-    // vector<int> epochs(1000);
-    // iota(epochs.begin(), epochs.end(), 1);
+    n.save_weights("/home/stschaef/ml_cpp/data/animal_weights.txt");
 
-    // plt::plot(epochs, epoch_data);
-    // plt::xlabel("Number of Iterations");
-    // plt::ylabel("Mean Squared Error");
-    // plt::title("Animals training");
+    vector<int> epochs(total_epochs);
+    iota(epochs.begin(), epochs.end(), 1);
+
+    plt::plot(epochs, testing_accuracy);
+    plt::xlabel("Number of Epochs");
+    plt::ylabel("Test Set Accuracy/MSE");
+
+    plt::plot(epochs, epoch_data);
+    
+    plt::title("Animals: Test Accuracy and Training Loss (MSE)");
     // plt::show();
-    // plt::save("plots/animals_training.pdf");
+    plt::save("/home/stschaef/ml_cpp/plots/animals_training.pdf");
 
-    n.save_weights("data/animal_weights.txt");
+
     return 0;
 }

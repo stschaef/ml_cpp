@@ -13,7 +13,7 @@ namespace plt = matplotlibcpp;
 
 int main()
 {   
-    uint total_epochs = 40;
+    uint total_epochs = 2;
     uint batch_size = 8;
     uint num_channels = 5;
     scalar lr = 0.5;
