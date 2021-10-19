@@ -3,6 +3,7 @@ SRC_DIR=$(CUR_ROOT)/src
 BIN_DIR=$(CUR_ROOT)/bin
 LIB_DIR=$(CUR_ROOT)/lib
 TEST_DIR=$(CUR_ROOT)/test
+JS_DIR=$(CUR_ROOT)/js
 
 CC=g++
 INC=-I/home/stschaef/ml_cpp/include  
@@ -25,8 +26,8 @@ animals: $(SRC_DIR)/animals.cpp
 mnist: $(SRC_DIR)/mnist.cpp 
 	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS) $(OPEN_CV)
 
-seven: $(SRC_DIR)/seven.cpp 
-	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/seven.cpp -o $(BIN_DIR)/seven.o $(PYTHONLINKS) $(OPEN_CV)
+predictor: $(SRC_DIR)/predictor.cpp 
+	emcc $(INC) $(filter-out $(LIB_DIR)/utils.cpp, $(LIB)) $(PYTHONINCLUDE) $(SRC_DIR)/predictor.cpp -o predictor.html
 
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o

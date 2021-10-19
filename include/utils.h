@@ -4,8 +4,10 @@
 
 #include <tuple>
 #include <Layer.h>
+
 #include <opencv4/opencv2/opencv.hpp>  
 #include <glob.h>
+
 
 vector<scalar> flatten_animals_image(string image_path);
 vector<scalar> flatten_mnist_image(string image_path, uint num_channels);

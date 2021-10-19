@@ -13,6 +13,7 @@
 #include <algorithm>
 
 typedef float scalar;
+typedef unsigned int uint;
 using namespace std;
 
 class Layer {
