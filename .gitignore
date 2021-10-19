@@ -10,3 +10,4 @@ data/MNIST*
 data/mnist_weights.txt
 data/xor_weights.txt
 bin/
+node_modules/

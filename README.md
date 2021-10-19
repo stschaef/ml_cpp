@@ -19,8 +19,24 @@ I am hoping to incorporate the digit-recognition model into a React app via WebA
 
 4. More universal preprocessor guards. In particular, to better handle the use of `g++` vs `emcc`.
 
+5. Find a good way to store training data. I didn't want to abuse git by pushing tens of thousands of training images, so I only stored them locally. Same thing with compiled binaries.
+
+6. Write a good testing suite.
+
 ## Emscripten
 
 Note that the target `predictor` is compiled with `emcc` rather than `g++`. Moreover, it is the only target meant to be used in this way.
 
 This could've been accomplished with `emmake`, but that was throwing some weird errors and this worked for whatever reason.
+
+## Plots
+
+Some of the plots found in `plots/` are not up to date. Some better pictures representing training may be found in older commits.
+
+# Frontend
+
+We start by cloning an existing project with a drawing canvas React component. This will provide a good starting point.
+
+```git clone https://github.com/bbachi/react-drawing-canvas.git```
+
+We will then take a drawing from this canvas, downsample it to 28x28, then feed it into the MNIST-handwriting-trained model provided by `predictor`. We then return to the user the likelihoods that their drawing is each digit.
