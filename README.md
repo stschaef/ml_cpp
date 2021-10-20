@@ -35,8 +35,9 @@ Some of the plots found in `plots/` are not up to date. Some better pictures rep
 
 # Frontend
 
-We start by cloning an existing project with a drawing canvas React component. This will provide a good starting point.
+We start by cloning an existing project with a drawing canvas React component. This will provide a good starting point that we will edit in place.
 
 ```git clone https://github.com/bbachi/react-drawing-canvas.git```
 
 We will then take a drawing from this canvas, downsample it to 28x28, then feed it into the MNIST-handwriting-trained model provided by `predictor`. We then return to the user the likelihoods that their drawing is each digit.
+

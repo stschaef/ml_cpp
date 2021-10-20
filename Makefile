@@ -27,7 +27,7 @@ mnist: $(SRC_DIR)/mnist.cpp
 	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS) $(OPEN_CV)
 
 predictor: $(SRC_DIR)/predictor.cpp 
-	emcc $(INC) $(filter-out $(LIB_DIR)/utils.cpp, $(LIB)) $(PYTHONINCLUDE) $(SRC_DIR)/predictor.cpp -o predictor.html
+	emcc $(INC) $(filter-out $(LIB_DIR)/utils.cpp, $(LIB)) $(PYTHONINCLUDE) $(SRC_DIR)/predictor.cpp -o predictor.html -s EXPORTED_FUNCTIONS='["_predict"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]'
 
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o
