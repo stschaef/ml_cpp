@@ -2,6 +2,7 @@ import './App.css';
 import React from "react";
 import CanvasDraw from "react-canvas-draw";
 import Module from "./predictor.js";
+import getPixels from 'get-pixels';
 
 class App extends React.Component {
   constructor(props) {
@@ -17,29 +18,18 @@ class App extends React.Component {
   };
   
   handleClear(e) {
+    console.log(this.canvas);
     this.canvas.clear();
   };
 
-  handlePredict(e) {
-    console.log("Adsf");
+  handlePredict() {
+    const mod = Module().then(function(result) {
+      console.log(result);
+      result._predict();
+    });
   };
 
   render() {
-  //   const mod =  createModuleGlue({
-  //     noInitialRun: true,
-  //     noExitRuntime: true
-  // });
-
-  const mod = Module().then(function(result) {
-    console.log(result);
-    result._predict();
-  });
-  
-    // Module._predict();
-
-    // pred();
-
-
     return(         
     <div className="App">
       <button onClick={this.handleClear}> Clear </button>
