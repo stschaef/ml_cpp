@@ -1,21 +1,19 @@
 #include <iostream>
 #include <NeuralNetwork.h>
-// #include <emscripten.h>
+#include <emscripten/emscripten.h>
 
 
 using namespace std;
 
-// EMSCRIPTEN_KEEPALIVE
-
 extern "C" {
-int predict()
+EMSCRIPTEN_KEEPALIVE
+vector<scalar> predict(vector<scalar> input_vec)
 {   
     scalar lr = 0.1;
 
     NeuralNetwork n(lr, mean_squared_error, mean_squared_error_der);
     n.load_weights("/home/stschaef/ml_cpp/mnist_weights_97.txt");
 
-    cout << "Hello World!" << '\n';
-    
-    return 0;
-}}
+    return(n.predict(input_vec));
+}
+}

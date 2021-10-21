@@ -1,6 +1,7 @@
 import './App.css';
 import React from "react";
 import CanvasDraw from "react-canvas-draw";
+import Module from "./predictor.js";
 
 class App extends React.Component {
   constructor(props) {
@@ -24,9 +25,19 @@ class App extends React.Component {
   };
 
   render() {
-    var pred = Module.cwrap('predict', null, [Number]);
+  //   const mod =  createModuleGlue({
+  //     noInitialRun: true,
+  //     noExitRuntime: true
+  // });
 
-    pred();
+  const mod = Module().then(function(result) {
+    console.log(result);
+    result._predict();
+  });
+  
+    // Module._predict();
+
+    // pred();
 
 
     return(         
@@ -48,8 +59,6 @@ class App extends React.Component {
         <li key={num}> {num} - Prob: {this.state.probs[num]}  </li>
       ))}
     </ul>
-    <link rel="import" href="../../predictor.html"/>
-    <predictor/>
     </div>);
   }
 }

@@ -2,7 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import "./predictor.js";
 import reportWebVitals from './reportWebVitals';
+
+let Module = require('./predictor.js');
+
+export default Module;
 
 ReactDOM.render(
   <React.StrictMode>

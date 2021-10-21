@@ -27,7 +27,19 @@ mnist: $(SRC_DIR)/mnist.cpp
 	$(CC) $(FLAGS) $(INC) $(LIB) $(PYTHONINCLUDE) $(SRC_DIR)/mnist.cpp -o $(BIN_DIR)/mnist.o $(PYTHONLINKS) $(OPEN_CV)
 
 predictor: $(SRC_DIR)/predictor.cpp 
-	emcc $(INC) $(filter-out $(LIB_DIR)/utils.cpp, $(LIB)) $(PYTHONINCLUDE) $(SRC_DIR)/predictor.cpp -o predictor.html -s EXPORTED_FUNCTIONS='["_predict"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]'
+	emcc $(INC) $(filter-out $(LIB_DIR)/utils.cpp, $(LIB)) \
+	$(SRC_DIR)/predictor.cpp \
+	-Os -g1 \
+	-s WASM=1 \
+	-s MALLOC=emmalloc \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s EXPORT_ES6=1 \
+	-s MODULARIZE=1 \
+	-s EXPORT_NAME='createModule' \
+	-s 'ENVIRONMENT="web"' \
+	--bind \
+	-o predictor.js \
+	-std=c++11 
 
 test: $(TEST)
 	$(CC) $(FLAGS) $(INC) -I/usr/include/cppunit $(TEST) -o $(TEST_DIR)/$(NAME).o
