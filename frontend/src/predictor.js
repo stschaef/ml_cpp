@@ -1,6 +1,6 @@
 /* eslint-disable */
 var createModule = (function() {
-  var _scriptDir = '/';
+  var _scriptDir = '../public/predictor.wasm';
   
   return (
 function(createModule) {
@@ -463,7 +463,7 @@ function abort(what) {
 // return filename.startsWith(dataURIPrefix);
 //}
 
-const wasmBinaryFile = '/predictor.wasm'
+const wasmBinaryFile = '../public/predictor.wasm'
 
 //if (Module["locateFile"]) {
 // wasmBinaryFile = "predictor.wasm";
@@ -531,8 +531,7 @@ function createWasm() {
   });
  }
  function instantiateAsync() {
-  if (!wasmBinary && typeof WebAssembly.instantiateStreaming === "function" && typeof fetch === "function")
- {
+  if (!wasmBinary && typeof WebAssembly.instantiateStreaming === "function" && typeof fetch === "function") {
    return fetch(wasmBinaryFile, {
     credentials: "same-origin"
    }).then(function(response) {
