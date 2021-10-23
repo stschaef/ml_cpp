@@ -30,18 +30,22 @@ class App extends React.Component {
       let pooling_size = this.state.size / 28;
       let height = this.state.img_data.height;
       let width = this.state.img_data.width;
+      console.log(this.state.img_data);
 
       for (let i = 0; i < height; i = i + pooling_size) {
         for (let j = 0; j < width; j = j + pooling_size) {
             let sum = 0;
             for (let y = i; y < i + pooling_size; y++) {
                 for (let x = j; x < j + pooling_size; x++) {
-                    sum += this.state.img_data.data[y][x];
+                  let idx = y * (width * 4) + x * 4;
+                    sum += this.state.img_data.data[idx] / 255.0;
                 }
             }
             a.push(sum / (pooling_size * pooling_size));
         }   
       }
+
+      console.log(a);
 
       let b = Array(0);
 
@@ -54,10 +58,22 @@ class App extends React.Component {
       this.setState({pixel_vec_flat: b}, () => {
         let vec = this.state.pixel_vec_flat;
         console.log(this.state);
-        const mod = Module().then(function(result) {
-          let predictions = result._predict(vec);
-          console.log(predictions);
-          this.setState({probs: predictions});
+        const mod = Module().then((result) => {
+          // console.log(result);
+          // let predictions = result._predict(vec);
+          // console.log("asdfasd", predictions);
+          // console.log(this.state);
+          // this.setState({probs: predictions});
+          // console.log(this.state);
+
+          let pred = result.cwrap('predict', 'number', ['array', 'number']);
+          let predictions = pred(vec, 5);
+          // for (let i = 0; i < 10; i++) {
+          //   console.log(pred(vec, i))
+          // }
+          // let predictions = result._predict(new Uint8Array(new Float64Array(vec)));
+          // console.log(predictions);
+          // console.log(result.getValue(predictions, "double"))
         });
       });
   });};
@@ -70,7 +86,7 @@ class App extends React.Component {
       <CanvasDraw
           ref={canvasDraw => (this.canvas = canvasDraw)}
           brushColor="white"
-          brushRadius={10}
+          brushRadius={25}
           canvasWidth={this.state.size}
           canvasHeight={this.state.size}
           backgroundColor="black"

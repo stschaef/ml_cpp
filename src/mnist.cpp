@@ -43,6 +43,7 @@ int main()
         for (auto p : train_paths) {
             X_train_before.push_back(flatten_mnist_image(p, num_channels));
             Y_train_before.push_back(label);
+            exit(1);
         }
 
         for (auto p : test_paths) {

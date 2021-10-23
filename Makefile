@@ -39,6 +39,8 @@ predictor: $(SRC_DIR)/predictor.cpp
 	-s 'ENVIRONMENT="web"' \
 	--bind \
 	-o predictor.js \
+	-s ASSERTIONS=1 \
+	-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap", "getValue", "setValue"]' \
 	-std=c++11 
 
 test: $(TEST)

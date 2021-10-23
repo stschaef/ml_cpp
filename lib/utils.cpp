@@ -37,6 +37,9 @@ vector<scalar> flatten_mnist_image(string image_path, uint num_channels)
             img_vec.push_back(image.at<uchar>(i, j) / 255.0); // normalize
         }
     }
+    for (auto a: img_vec) {
+        cout << a << '\n';
+    }
     vector<scalar> output;
     output.reserve(num_channels * img_vec.size());
     for (uint i = 0; i < num_channels; i ++) {
