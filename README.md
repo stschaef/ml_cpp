@@ -40,6 +40,8 @@ Here is what it should look like: ![](demo.png)
 
 8. Better resizing of the image from an HTML5 canvas. On the frontend, when inputting the image I resize via average-pooling to a 28x28 sized image. However, this can cause some strange behavior. A better approach would to use existing image-resizing approaches, however this introduced more dependencies and the pooling method only causes minimal problems. Further, a more general approach would allow the canvas size to be changed in the UI without inducing any issues, but as it stands now the size is carefully constructed to play well with average pooling.
 
+9. Data Augmentation. Further performance on the MNIST data, as well as many computer vision tasks, can be achieved through data augmentation. A primary way of achieving this is by affinely transforming the data appropriately. That is, we may slightly scale, rotate, and translate the data and treat these transformed copies as new training data. This gives the model some level of affine-invariance. 
+
 ## Emscripten
 
 Note that the target `predictor` is compiled with `emcc` rather than `g++`. Moreover, it is the only target meant to be used in this way.
