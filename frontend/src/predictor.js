@@ -255,6 +255,170 @@ if (!Object.getOwnPropertyDescriptor(Module["ready"], "onRuntimeInitialized")) {
  });
 }
 
+if (!Module.expectedDataFileDownloads) {
+ Module.expectedDataFileDownloads = 0;
+}
+
+Module.expectedDataFileDownloads++;
+
+(function() {
+ var loadPackage = function(metadata) {
+  var PACKAGE_PATH = "";
+  if (typeof window === "object") {
+   PACKAGE_PATH = window["encodeURIComponent"](window.location.pathname.toString().substring(0, window.location.pathname.toString().lastIndexOf("/")) + "/");
+  } else if (typeof process === "undefined" && typeof location !== "undefined") {
+   PACKAGE_PATH = encodeURIComponent(location.pathname.toString().substring(0, location.pathname.toString().lastIndexOf("/")) + "/");
+  }
+  var PACKAGE_NAME = "predictor.data";
+  var REMOTE_PACKAGE_BASE = "predictor.data";
+  if (typeof Module["locateFilePackage"] === "function" && !Module["locateFile"]) {
+   Module["locateFile"] = Module["locateFilePackage"];
+   err("warning: you defined Module.locateFilePackage, that has been renamed to Module.locateFile (using your locateFilePackage for now)");
+  }
+  var REMOTE_PACKAGE_NAME = Module["locateFile"] ? Module["locateFile"](REMOTE_PACKAGE_BASE, "") : REMOTE_PACKAGE_BASE;
+  var REMOTE_PACKAGE_SIZE = metadata["remote_package_size"];
+  var PACKAGE_UUID = metadata["package_uuid"];
+  function fetchRemotePackage(packageName, packageSize, callback, errback) {
+   var xhr = new XMLHttpRequest();
+   xhr.open("GET", packageName, true);
+   xhr.responseType = "arraybuffer";
+   xhr.onprogress = function(event) {
+    var url = packageName;
+    var size = packageSize;
+    if (event.total) size = event.total;
+    if (event.loaded) {
+     if (!xhr.addedTotal) {
+      xhr.addedTotal = true;
+      if (!Module.dataFileDownloads) Module.dataFileDownloads = {};
+      Module.dataFileDownloads[url] = {
+       loaded: event.loaded,
+       total: size
+      };
+     } else {
+      Module.dataFileDownloads[url].loaded = event.loaded;
+     }
+     var total = 0;
+     var loaded = 0;
+     var num = 0;
+     for (var download in Module.dataFileDownloads) {
+      var data = Module.dataFileDownloads[download];
+      total += data.total;
+      loaded += data.loaded;
+      num++;
+     }
+     total = Math.ceil(total * Module.expectedDataFileDownloads / num);
+     if (Module["setStatus"]) Module["setStatus"]("Downloading data... (" + loaded + "/" + total + ")");
+    } else if (!Module.dataFileDownloads) {
+     if (Module["setStatus"]) Module["setStatus"]("Downloading data...");
+    }
+   };
+   xhr.onerror = function(event) {
+    throw new Error("NetworkError for: " + packageName);
+   };
+   xhr.onload = function(event) {
+    if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || xhr.status == 0 && xhr.response) {
+     var packageData = xhr.response;
+     callback(packageData);
+    } else {
+     throw new Error(xhr.statusText + " : " + xhr.responseURL);
+    }
+   };
+   xhr.send(null);
+  }
+  function handleError(error) {
+   console.error("package error:", error);
+  }
+  var fetchedCallback = null;
+  var fetched = Module["getPreloadedPackage"] ? Module["getPreloadedPackage"](REMOTE_PACKAGE_NAME, REMOTE_PACKAGE_SIZE) : null;
+  if (!fetched) fetchRemotePackage(REMOTE_PACKAGE_NAME, REMOTE_PACKAGE_SIZE, function(data) {
+   if (fetchedCallback) {
+    fetchedCallback(data);
+    fetchedCallback = null;
+   } else {
+    fetched = data;
+   }
+  }, handleError);
+  function runWithFS() {
+   function assert(check, msg) {
+    if (!check) throw msg + new Error().stack;
+   }
+   function DataRequest(start, end, audio) {
+    this.start = start;
+    this.end = end;
+    this.audio = audio;
+   }
+   DataRequest.prototype = {
+    requests: {},
+    open: function(mode, name) {
+     this.name = name;
+     this.requests[name] = this;
+     Module["addRunDependency"]("fp " + this.name);
+    },
+    send: function() {},
+    onload: function() {
+     var byteArray = this.byteArray.subarray(this.start, this.end);
+     this.finish(byteArray);
+    },
+    finish: function(byteArray) {
+     var that = this;
+     Module["FS_createDataFile"](this.name, null, byteArray, true, true, true);
+     Module["removeRunDependency"]("fp " + that.name);
+     this.requests[this.name] = null;
+    }
+   };
+   var files = metadata["files"];
+   for (var i = 0; i < files.length; ++i) {
+    new DataRequest(files[i]["start"], files[i]["end"], files[i]["audio"] || 0).open("GET", files[i]["filename"]);
+   }
+   function processPackageData(arrayBuffer) {
+    assert(arrayBuffer, "Loading data file failed.");
+    assert(arrayBuffer instanceof ArrayBuffer, "bad input to processPackageData");
+    var byteArray = new Uint8Array(arrayBuffer);
+    DataRequest.prototype.byteArray = byteArray;
+    var files = metadata["files"];
+    for (var i = 0; i < files.length; ++i) {
+     DataRequest.prototype.requests[files[i].filename].onload();
+    }
+    Module["removeRunDependency"]("datafile_predictor.data");
+   }
+   Module["addRunDependency"]("datafile_predictor.data");
+   if (!Module.preloadResults) Module.preloadResults = {};
+   Module.preloadResults[PACKAGE_NAME] = {
+    fromCache: false
+   };
+   if (fetched) {
+    processPackageData(fetched);
+    fetched = null;
+   } else {
+    fetchedCallback = processPackageData;
+   }
+  }
+  if (Module["calledRun"]) {
+   runWithFS();
+  } else {
+   if (!Module["preRun"]) Module["preRun"] = [];
+   Module["preRun"].push(runWithFS);
+  }
+ };
+ loadPackage({
+  "files": [ {
+   "filename": "/mnist_weights_97.txt",
+   "start": 0,
+   "end": 175940
+  } ],
+  "remote_package_size": 175940,
+  "package_uuid": "61ab62bd-0fd0-4ab3-bdb5-9b6655d2b5b4"
+ });
+})();
+
+var necessaryPreJSTasks = Module["preRun"].slice();
+
+if (!Module["preRun"]) throw "Module.preRun should exist because file support used it; did a pre-js delete it?";
+
+necessaryPreJSTasks.forEach(function(task) {
+ if (Module["preRun"].indexOf(task) < 0) throw "All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?";
+});
+
 var moduleOverrides = {};
 
 var key;
@@ -1228,7 +1392,7 @@ function createExportWrapper(name, fixedasm) {
  };
 }
 
-const wasmBinaryFile = "./predictor.wasm"
+const wasmBinaryFile = "/predictor.wasm"
 
 
 const getBinaryPromise = () => new Promise((resolve, reject) => {
@@ -1282,7 +1446,7 @@ function createWasm() {
   });
  }
  function instantiateAsync() {
-  if (!wasmBinary && typeof WebAssembly.instantiateStreaming === "function"  && typeof fetch === "function") {
+  if (!wasmBinary && typeof WebAssembly.instantiateStreaming === "function" && typeof fetch === "function") {
    return fetch(wasmBinaryFile, {
     credentials: "same-origin"
    }).then(function(response) {
@@ -5123,6 +5287,18 @@ FS.FSNode = FSNode;
 
 FS.staticInit();
 
+Module["FS_createPath"] = FS.createPath;
+
+Module["FS_createDataFile"] = FS.createDataFile;
+
+Module["FS_createPreloadedFile"] = FS.createPreloadedFile;
+
+Module["FS_createLazyFile"] = FS.createLazyFile;
+
+Module["FS_createDevice"] = FS.createDevice;
+
+Module["FS_unlink"] = FS.unlink;
+
 ERRNO_CODES = {
  "EPERM": 63,
  "ENOENT": 44,
@@ -5263,6 +5439,45 @@ function intArrayFromString(stringy, dontAddNull, length) {
  var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
  if (dontAddNull) u8array.length = numBytesWritten;
  return u8array;
+}
+
+var decodeBase64 = typeof atob === "function" ? atob : function(input) {
+ var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+ var output = "";
+ var chr1, chr2, chr3;
+ var enc1, enc2, enc3, enc4;
+ var i = 0;
+ input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+ do {
+  enc1 = keyStr.indexOf(input.charAt(i++));
+  enc2 = keyStr.indexOf(input.charAt(i++));
+  enc3 = keyStr.indexOf(input.charAt(i++));
+  enc4 = keyStr.indexOf(input.charAt(i++));
+  chr1 = enc1 << 2 | enc2 >> 4;
+  chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+  chr3 = (enc3 & 3) << 6 | enc4;
+  output = output + String.fromCharCode(chr1);
+  if (enc3 !== 64) {
+   output = output + String.fromCharCode(chr2);
+  }
+  if (enc4 !== 64) {
+   output = output + String.fromCharCode(chr3);
+  }
+ } while (i < input.length);
+ return output;
+};
+
+function intArrayFromBase64(s) {
+ try {
+  var decoded = decodeBase64(s);
+  var bytes = new Uint8Array(decoded.length);
+  for (var i = 0; i < decoded.length; ++i) {
+   bytes[i] = decoded.charCodeAt(i);
+  }
+  return bytes;
+ } catch (_) {
+  throw new Error("Converting base64 string to bytes failed.");
+ }
 }
 
 var asmLibraryArg = {
@@ -5416,45 +5631,29 @@ if (!Object.getOwnPropertyDescriptor(Module, "writeAsciiToMemory")) Module["writ
  abort("'writeAsciiToMemory' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
 };
 
-if (!Object.getOwnPropertyDescriptor(Module, "addRunDependency")) Module["addRunDependency"] = function() {
- abort("'addRunDependency' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["addRunDependency"] = addRunDependency;
 
-if (!Object.getOwnPropertyDescriptor(Module, "removeRunDependency")) Module["removeRunDependency"] = function() {
- abort("'removeRunDependency' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["removeRunDependency"] = removeRunDependency;
 
 if (!Object.getOwnPropertyDescriptor(Module, "FS_createFolder")) Module["FS_createFolder"] = function() {
  abort("'FS_createFolder' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
 };
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_createPath")) Module["FS_createPath"] = function() {
- abort("'FS_createPath' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_createPath"] = FS.createPath;
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_createDataFile")) Module["FS_createDataFile"] = function() {
- abort("'FS_createDataFile' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_createDataFile"] = FS.createDataFile;
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_createPreloadedFile")) Module["FS_createPreloadedFile"] = function() {
- abort("'FS_createPreloadedFile' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_createPreloadedFile"] = FS.createPreloadedFile;
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_createLazyFile")) Module["FS_createLazyFile"] = function() {
- abort("'FS_createLazyFile' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_createLazyFile"] = FS.createLazyFile;
 
 if (!Object.getOwnPropertyDescriptor(Module, "FS_createLink")) Module["FS_createLink"] = function() {
  abort("'FS_createLink' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
 };
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_createDevice")) Module["FS_createDevice"] = function() {
- abort("'FS_createDevice' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_createDevice"] = FS.createDevice;
 
-if (!Object.getOwnPropertyDescriptor(Module, "FS_unlink")) Module["FS_unlink"] = function() {
- abort("'FS_unlink' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ). Alternatively, forcing filesystem support (-s FORCE_FILESYSTEM=1) can export this for you");
-};
+Module["FS_unlink"] = FS.unlink;
 
 if (!Object.getOwnPropertyDescriptor(Module, "getLEB")) Module["getLEB"] = function() {
  abort("'getLEB' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");

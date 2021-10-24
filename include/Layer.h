@@ -12,7 +12,7 @@
 #include <fstream>
 #include <algorithm>
 
-typedef float scalar;
+typedef double scalar;
 typedef unsigned int uint;
 using namespace std;
 

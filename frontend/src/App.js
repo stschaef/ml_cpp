@@ -59,21 +59,23 @@ class App extends React.Component {
         let vec = this.state.pixel_vec_flat;
         console.log(this.state);
         const mod = Module().then((result) => {
-          // console.log(result);
-          // let predictions = result._predict(vec);
-          // console.log("asdfasd", predictions);
-          // console.log(this.state);
-          // this.setState({probs: predictions});
-          // console.log(this.state);
+          var v1 = new Float64Array(vec);
+          v1[0] = 300;
+          var uarray = new Uint8Array(v1.buffer)
 
           let pred = result.cwrap('predict', 'number', ['array', 'number']);
-          let predictions = pred(vec, 5);
-          // for (let i = 0; i < 10; i++) {
-          //   console.log(pred(vec, i))
-          // }
-          // let predictions = result._predict(new Uint8Array(new Float64Array(vec)));
-          // console.log(predictions);
-          // console.log(result.getValue(predictions, "double"))
+          let predictions = Array(10);
+
+
+          for (let i = 0; i < 10; i++) {
+            predictions[i] = pred(uarray, i)
+          }
+          // predictions[0] = pred(uarray, 0)
+          console.log(predictions)
+          
+          this.setState({probs: predictions});
+          // console.log(this.state);
+
         });
       });
   });};

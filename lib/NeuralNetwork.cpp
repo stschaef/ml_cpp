@@ -201,7 +201,7 @@ void NeuralNetwork::save_weights(string out_filename)
 
 void NeuralNetwork::load_weights(string in_filename)
 {
-    cout << in_filename;
+    cout << in_filename << "\n";
     ifstream in_file(in_filename);
 
     char layer_type;
@@ -282,13 +282,17 @@ void NeuralNetwork::load_weights(string in_filename)
                 if (!bias) {
                     for (size_t i = 0; i < words.size() - 1; i++) {
                         dynamic_cast<FullyConnectedLayer*>(layers[layers.size() - 1].get())->set_weight_at(weight_row, i, stod(words[i]));
+                        cout << words[i] << " ";
                     }
+                    cout << "\n";
                     weight_row++;
                 }
                 else {
                     for (size_t i = 0; i < words.size() - 1; i++) {
                         dynamic_cast<FullyConnectedLayer*>(layers[layers.size() - 1].get())->set_bias_at(i, stod(words[i]));
+                        cout << words[i] << " ";
                     }
+                    cout << "\n";
                 }
                 break;
             }
@@ -303,7 +307,10 @@ void NeuralNetwork::load_weights(string in_filename)
                 uint ker_size(sqrt(words.size() - 1));
                 for (uint i = 0; i < words.size() - 1; i++) {
                     dynamic_cast<ConvolutionLayer*>(layers[layers.size() - 1].get())->set_kernel_at(channel_idx, i / ker_size, i % ker_size, stod(words[i]));
+                    cout << words[i] << " ";
+
                 }
+                cout << "\n";
                 break;
             }
             case 'x':

@@ -39,6 +39,7 @@ predictor: $(SRC_DIR)/predictor.cpp
 	-s 'ENVIRONMENT="web"' \
 	--bind \
 	-o predictor.js \
+	--preload-file "/home/stschaef/ml_cpp/mnist_weights_97.txt" \
 	-s ASSERTIONS=1 \
 	-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap", "getValue", "setValue"]' \
 	-std=c++11 
