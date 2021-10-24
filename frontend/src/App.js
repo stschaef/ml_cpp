@@ -12,8 +12,8 @@ class App extends React.Component {
 
   state = {
     color: "white",
+    brushSize: 15,
     size: 420,
-    lazyRadius: 12,
     probs: {...[0,0,0,0,0,0,0,0,0,0]},
     img_data: null,
     pixel_vec_flat: null,
@@ -81,6 +81,24 @@ class App extends React.Component {
   });};
 
   render() {
+    function scale(x) {
+      if (x < 0) return 0;
+      if (x > 1) return 1;
+      return x;
+    }
+
+    function argmax(a) {
+      let largest = -10
+      let largest_ind = 0
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] > largest) {
+          largest = a[i]
+          largest_ind = i
+        }
+      }
+      return largest_ind
+    }
+
     return(         
     <div className="App">
       <button onClick={this.handleClear}> Clear </button>
@@ -88,19 +106,25 @@ class App extends React.Component {
       <CanvasDraw
           ref={canvasDraw => (this.canvas = canvasDraw)}
           brushColor="white"
-          brushRadius={25}
+          brushRadius={this.state.brushSize}
           canvasWidth={this.state.size}
           canvasHeight={this.state.size}
           backgroundColor="black"
           hideGrid="true"
           lazyRadius={0}
         />
+    <h1> Prediction: {argmax(this.state.probs)} </h1>
     <ul>
       {Object.keys(this.state.probs).map((num) => (
-        <li key={num}> {num} - Prob: {this.state.probs[num]}  </li>
+        <li key={num}> {num} - Likelihood: {scale(this.state.probs[num]).toFixed(2)}  </li>
       ))}
     </ul>
-    </div>);
+    <p> Input a handwritten digit and have it classified! Be sure to draw big and clearly, as there are some artefacts introduced when downsampling from an HTML5 canvas to a 28x28 pixel grid. I do this via a grid-based average pooling approach, which can cause some minor issues.
+      
+      A better test of the model may be to simply input a JPEG. There is a version of this available from the command line, but I have not exposed this to the web via Emscripten. </p> 
+    </div>
+    );
+
   }
 }
 

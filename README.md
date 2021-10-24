@@ -10,7 +10,20 @@ This is enough to create a minimum viable convolutional neural net for computer 
 
 I incorporate the digit-recognition model into a React app via WebAssembly (detailed [below](#frontend)). 
 
-## Some Things I Would Change Given Enough Time
+# Frontend
+
+We make use of a [canvas drawing React component](https://www.npmjs.com/package/react-canvas-draw) to allow users to input a handwritten digit. We then take the pixel data from this image, pass it through the model via WebAssembly, then return a prediction. 
+
+I have implemented no CSS for this, so the style is pretty barebones. Further, I have not yet deployed this to anywhere on the web, so we may run it by cloning the repo and executing the following:
+
+```
+cd frontend
+yarn start
+```
+
+Here is what it should look like: ![](demo.png)
+
+# Some Things I Would Change Given Enough Time
 1. CUDA support for performance. CUDA does not play nicely with the STL or object-oriented design patterns, so including CUDA support would take a massive overhaul that I don't have the budget for timewise. 
 
 2. Padding in the convolutional layers was never fully implemented. This was not much of a hindrance since my laptop couldn't handle large amounts of data or complicated network architectures.
@@ -23,7 +36,9 @@ I incorporate the digit-recognition model into a React app via WebAssembly (deta
 
 6. Write a good testing suite.
 
-7. CSS
+7. CSS. The style on the fronted is nonexistent.
+
+8. Better resizing of the image from an HTML5 canvas. On the frontend, when inputting the image I resize via average-pooling to a 28x28 sized image. However, this can cause some strange behavior. A better approach would to use existing image-resizing approaches, however this introduced more dependencies and the pooling method only causes minimal problems. Further, a more general approach would allow the canvas size to be changed in the UI without inducing any issues, but as it stands now the size is carefully constructed to play well with average pooling.
 
 ## Emscripten
 
@@ -37,13 +52,4 @@ Note that the usual JavaScript outputted by `emcc` does not play well with React
 
 Some of the plots found in `plots/` are not up to date. Some better pictures representing training may be found in older commits.
 
-# Frontend
 
-We make use of a [canvas drawing React component](https://www.npmjs.com/package/react-canvas-draw) to allow users to input a handwritten digit. We then take the pixel data from this image, pass it through the model via WebAssembly, then return a prediction. 
-
-I have implemented no CSS for this, so the style is pretty barebones. Further, I have not yet deployed this to anywhere on the web, so we may run it by cloning the repo and executing the following:
-
-```
-cd frontend
-yarn start
-```
